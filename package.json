@@ -10,14 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:env-viewer.helloWorld"
+		"onCommand:env-viewer.interpretateEnv"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "env-viewer.helloWorld",
-				"title": "Hello World"
+				"command": "env-viewer.interpretateEnv",
+				"title": "Interpretate Env"
 			}
 		]
 	},

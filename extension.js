@@ -4,11 +4,11 @@ const vscode = require('vscode');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	let disposable = vscode.commands.registerCommand('env-viewer.helloWorld', function () {
+	let interpretateCommand = vscode.commands.registerCommand('env-viewer.interpretateEnv', function () {
 		vscode.window.showInformationMessage('Interpretating...');
 	});
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(interpretateCommand);
 }
 
 // this method is called when your extension is deactivated
