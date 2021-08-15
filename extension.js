@@ -1,4 +1,5 @@
-const vscode = require('vscode');
+const vscode = require("vscode")
+const { parse } = require("dotenv")
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -28,9 +29,9 @@ module.exports = {
 	deactivate
 }
 
-
-
 function getWebviewContent(fileContent) {
+	console.log("lo parseado", parse(fileContent))
+
 	return `
 	<!DOCTYPE html>
 
