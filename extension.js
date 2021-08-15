@@ -8,15 +8,13 @@ function activate(context) {
 		const panel = vscode.window.createWebviewPanel(
 			'editor',
 			'Env Editor',
-			vscode.ViewColumn.One
+			vscode.ViewColumn.Two
 		);
 		
-		panel.webview.html = getWebviewContent();
+		const fileContent = vscode.window.activeTextEditor.document.getText();
+		panel.webview.html = getWebviewContent(fileContent);
 
-		const text = vscode.window.activeTextEditor.document.getText();
-		console.log("text", text)
-
-		vscode.window.showInformationMessage('Interpretating...', text,"!");
+		vscode.window.showInformationMessage('Interpretating...');
 	});
 
 	context.subscriptions.push(interpretateCommand);
@@ -32,7 +30,7 @@ module.exports = {
 
 
 
-function getWebviewContent() {
+function getWebviewContent(fileContent) {
 	return `
 	<!DOCTYPE html>
 
@@ -44,6 +42,7 @@ function getWebviewContent() {
 	</head>
 	<body>
 			<h1>Env Editor</h1>
+			<p>${fileContent}</p>
 	</body>
 	</html>
 	`;
