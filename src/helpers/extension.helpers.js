@@ -1,3 +1,5 @@
+const { parse } = require('dotenv')
+
 export const getWebviewContent = (fileContent) => {
   console.log('lo parseado', parse(fileContent))
 
