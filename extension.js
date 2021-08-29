@@ -38,7 +38,7 @@ const envKeys = {
   ENV_VALUE: 'env-value',
 }
 
-function getEnvValues(allValues, key) {
+function getValues(allValues, key) {
   const toCut = `// @${key}`
 
   let shouldKeepLooking = true
@@ -50,7 +50,9 @@ function getEnvValues(allValues, key) {
     const lastIndex = allValues.indexOf('// @', firstIndex + 1)
     const validatedLastIndex = lastIndex !== -1 ? lastIndex : allValues.length
 
-    const newValue = allValues.slice(firstIndex, validatedLastIndex).trim()
+    const newValue = allValues
+      .slice(firstIndex + toCut.length, validatedLastIndex)
+      .trim()
 
     if (newValue) {
       carriedIndex = validatedLastIndex
@@ -63,12 +65,27 @@ function getEnvValues(allValues, key) {
   return envValues
 }
 
+const parseEnvValues = (values) => {
+  return values.reduce((valuesAsObjects, value) => {
+    const [formattedValue] = value.match(/\w.+/) || []
+    const parsedValue = parse(formattedValue)
+    const valueSplitted = Object.keys(parsedValue).reduce((values, key) => {
+      const inlineValue = parsedValue[key]
+
+      return { ...values, [key]: inlineValue.split(',') }
+    }, {})
+
+    return { ...valuesAsObjects, ...valueSplitted }
+  }, {})
+}
+
 function getWebviewContent(fileContent) {
-  const envTemplate = getEnvValues(fileContent, envKeys.ENV_TEMPLATE)
-  const envMode = getEnvValues(fileContent, envKeys.ENV_MODE)
-  const envValue = getEnvValues(fileContent, envKeys.ENV_VALUE)
+  const envTemplate = getValues(fileContent, envKeys.ENV_TEMPLATE)
+  const envMode = getValues(fileContent, envKeys.ENV_MODE)
+  const envValues = getValues(fileContent, envKeys.ENV_VALUE)
 
   const parsedEnvTemplate = parse(envTemplate)
+  console.log('parseEnvValues(envValues)', parseEnvValues(envValues))
   const envTemplateHTML = Object.keys(parsedEnvTemplate).map((envKey) => {
     const value = parsedEnvTemplate[envKey]
     const formattedValue = `${envKey}: `
@@ -100,9 +117,9 @@ function getWebviewContent(fileContent) {
 					${envTemplateHTML.join('')}
 			</table>
 
-			<p>${envMode.join(' ')}</p>
+			<p>${envMode.join('\n')}</p>
 
-			<p>${envValue.join(' ')}</p>
+			<p>${envValues.join('\n')}</p>
 	</body>
 	</html>
 	`
