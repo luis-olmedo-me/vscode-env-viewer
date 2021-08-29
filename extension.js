@@ -1,38 +1,75 @@
-const vscode = require("vscode")
-const { parse } = require("dotenv")
+const vscode = require('vscode')
+const { parse } = require('dotenv')
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	let interpretateCommand = vscode.commands.registerCommand('env-viewer.interpretateEnv', function () {
-		const panel = vscode.window.createWebviewPanel(
-			'editor',
-			'Env Editor',
-			vscode.ViewColumn.Two
-		);
-		
-		const fileContent = vscode.window.activeTextEditor.document.getText();
-		panel.webview.html = getWebviewContent(fileContent);
+  let interpretateCommand = vscode.commands.registerCommand(
+    'env-viewer.interpretateEnv',
+    function () {
+      const panel = vscode.window.createWebviewPanel(
+        'editor',
+        'Env Editor',
+        vscode.ViewColumn.Two
+      )
 
-		vscode.window.showInformationMessage('Interpretating...');
-	});
+      const fileContent = vscode.window.activeTextEditor.document.getText()
+      panel.webview.html = getWebviewContent(fileContent)
 
-	context.subscriptions.push(interpretateCommand);
+      vscode.window.showInformationMessage('Interpretating...')
+    }
+  )
+
+  context.subscriptions.push(interpretateCommand)
 }
 
 // this method is called when your extension is deactivated
 function deactivate() {}
 
 module.exports = {
-	activate,
-	deactivate
+  activate,
+  deactivate,
+}
+
+const envKeys = {
+  ENV_TEMPLATE: 'env-template',
+  ENV_MODE: 'env-mode',
+  ENV_VALUE: 'env-value',
+}
+
+function getEnvValues(allValues, key) {
+  const toCut = `// @${key}`
+
+  let shouldKeepLooking = true
+  let envValues = []
+  let carriedIndex = 0
+
+  while (shouldKeepLooking) {
+    const firstIndex = allValues.indexOf(toCut, carriedIndex)
+    const lastIndex = allValues.indexOf('// @', firstIndex + 1)
+    const validatedLastIndex = lastIndex !== -1 ? lastIndex : allValues.length
+
+    const newValue = allValues.slice(firstIndex, validatedLastIndex).trim()
+
+    if (newValue) {
+      carriedIndex = validatedLastIndex
+      envValues = [...envValues, newValue]
+    } else {
+      shouldKeepLooking = false
+    }
+  }
+
+  return envValues
 }
 
 function getWebviewContent(fileContent) {
-	console.log("lo parseado", parse(fileContent))
+  console.log('lo parseado', parse(fileContent))
+  console.log('default:', getEnvValues(fileContent, envKeys.ENV_TEMPLATE))
+  console.log('env mode values:', getEnvValues(fileContent, envKeys.ENV_MODE))
+  console.log('env value values:', getEnvValues(fileContent, envKeys.ENV_VALUE))
 
-	return `
+  return `
 	<!DOCTYPE html>
 
 	<html lang="en">
@@ -46,5 +83,5 @@ function getWebviewContent(fileContent) {
 			<p>${fileContent}</p>
 	</body>
 	</html>
-	`;
+	`
 }
