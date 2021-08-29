@@ -64,10 +64,9 @@ function getEnvValues(allValues, key) {
 }
 
 function getWebviewContent(fileContent) {
-  console.log('lo parseado', parse(fileContent))
-  console.log('default:', getEnvValues(fileContent, envKeys.ENV_TEMPLATE))
-  console.log('env mode values:', getEnvValues(fileContent, envKeys.ENV_MODE))
-  console.log('env value values:', getEnvValues(fileContent, envKeys.ENV_VALUE))
+  const envTemplate = getEnvValues(fileContent, envKeys.ENV_TEMPLATE)
+  const envMode = getEnvValues(fileContent, envKeys.ENV_MODE)
+  const envValue = getEnvValues(fileContent, envKeys.ENV_VALUE)
 
   return `
 	<!DOCTYPE html>
@@ -80,7 +79,9 @@ function getWebviewContent(fileContent) {
 	</head>
 	<body>
 			<h1>Env Editor</h1>
-			<p>${fileContent}</p>
+			<p>${envTemplate.join(' ')}</p>
+			<p>${envMode.join(' ')}</p>
+			<p>${envValue.join(' ')}</p>
 	</body>
 	</html>
 	`
