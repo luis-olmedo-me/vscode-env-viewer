@@ -109,7 +109,6 @@ function getWebviewContent(fileContent) {
   const parsedEnvTemplate = parse(envTemplate)
   const parsedEnvValues = parseEnvValues(envValues)
   const parsedEnvModes = parseEnvModes(envMode)
-  console.log('parsedEnvModes', parsedEnvModes)
 
   const envTemplateHTML = Object.keys(parsedEnvTemplate).map((envKey) => {
     const value = parsedEnvTemplate[envKey]
@@ -130,6 +129,21 @@ function getWebviewContent(fileContent) {
 		`
   })
 
+  const envModeHTML = Object.keys(parsedEnvModes).map((envKey) => {
+    const values = parsedEnvModes[envKey]
+    const formattedValue = `${envKey}: `
+    const options = Object.keys(values)
+      .map((option) => `<option value="${option}">${option}</option>`)
+      .join('')
+
+    return `
+		<tr>
+				<td>${formattedValue}</td>
+				<td> <select>${options}</select></td>
+		</tr>
+		`
+  })
+
   return `
 	<!DOCTYPE html>
 
@@ -141,7 +155,10 @@ function getWebviewContent(fileContent) {
 	</head>
 	<body>
 			<h1>Env Editor</h1>
-			<table>
+
+      <h2>Environment Values</h2>
+			
+      <table>
 					<tr>
 							<th>KEY</th>
 							<th>VALUE</th>
@@ -149,7 +166,15 @@ function getWebviewContent(fileContent) {
 					${envTemplateHTML.join('')}
 			</table>
 
-			<p>${envMode.join('\n')}</p>
+      <h2>Environment Modes</h2>
+
+      <table>
+          <tr>
+              <th>MODE</th>
+              <th>VALUE</th>
+          </tr>
+          ${envModeHTML.join('')}
+      </table>
 	</body>
 	</html>
 	`
