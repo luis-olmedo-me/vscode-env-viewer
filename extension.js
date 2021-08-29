@@ -79,6 +79,28 @@ const parseEnvValues = (values) => {
   }, {})
 }
 
+const parseEnvModes = (modes) => {
+  return modes.reduce((envModes, mode) => {
+    const [modeMetadata] = mode.match(/\w.+/) || ['']
+    const [key, value] = modeMetadata.split('.')
+    const carriedEnvKeyValues = envModes[key] || {}
+    const carriedEnvValues = carriedEnvKeyValues[value] || {}
+
+    const envValues = mode
+      .replace(`:${modeMetadata}`, '')
+      .replace(/^\/\//gm, '')
+    const parsedValue = parse(envValues)
+
+    return {
+      ...envModes,
+      [key]: {
+        ...carriedEnvKeyValues,
+        [value]: { ...carriedEnvValues, ...parsedValue },
+      },
+    }
+  }, {})
+}
+
 function getWebviewContent(fileContent) {
   const envTemplate = getValues(fileContent, envKeys.ENV_TEMPLATE)
   const envMode = getValues(fileContent, envKeys.ENV_MODE)
@@ -86,6 +108,8 @@ function getWebviewContent(fileContent) {
 
   const parsedEnvTemplate = parse(envTemplate)
   const parsedEnvValues = parseEnvValues(envValues)
+  const parsedEnvModes = parseEnvModes(envMode)
+  console.log('parsedEnvModes', parsedEnvModes)
 
   const envTemplateHTML = Object.keys(parsedEnvTemplate).map((envKey) => {
     const value = parsedEnvTemplate[envKey]
