@@ -73,7 +73,12 @@ function getWebviewContent(fileContent) {
     const value = parsedEnvTemplate[envKey]
     const formattedValue = `${envKey}: `
 
-    return `<div><span>${formattedValue}</span><input type="text" value="${value}"/></div>`
+    return `
+		<div>
+			<span>${formattedValue}</span>
+			<input type="text" value="${value}"/>
+		</div>
+		`
   })
 
   return `
