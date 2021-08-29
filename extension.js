@@ -74,10 +74,10 @@ function getWebviewContent(fileContent) {
     const formattedValue = `${envKey}: `
 
     return `
-		<div>
-			<span>${formattedValue}</span>
-			<input type="text" value="${value}"/>
-		</div>
+		<tr>
+				<td>${formattedValue}</td>
+				<td><input type="text" value="${value}"/></td>
+		</tr>
 		`
   })
 
@@ -92,7 +92,13 @@ function getWebviewContent(fileContent) {
 	</head>
 	<body>
 			<h1>Env Editor</h1>
-			<p>${envTemplateHTML.join('')}</p>
+			<table>
+					<tr>
+							<th>KEY</th>
+							<th>VALUE</th>
+					</tr>
+					${envTemplateHTML.join('')}
+			</table>
 
 			<p>${envMode.join(' ')}</p>
 
