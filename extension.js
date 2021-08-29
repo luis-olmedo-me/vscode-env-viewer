@@ -126,8 +126,6 @@ function getWebviewContent(fileContent) {
 			</table>
 
 			<p>${envMode.join('\n')}</p>
-
-			<p>${envValues.join('\n')}</p>
 	</body>
 	</html>
 	`
