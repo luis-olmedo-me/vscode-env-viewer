@@ -68,6 +68,14 @@ function getWebviewContent(fileContent) {
   const envMode = getEnvValues(fileContent, envKeys.ENV_MODE)
   const envValue = getEnvValues(fileContent, envKeys.ENV_VALUE)
 
+  const parsedEnvTemplate = parse(envTemplate)
+  const envTemplateHTML = Object.keys(parsedEnvTemplate).map((envKey) => {
+    const value = parsedEnvTemplate[envKey]
+    const formattedValue = `${envKey}: `
+
+    return `<div><span>${formattedValue}</span><input type="text" value="${value}"/></div>`
+  })
+
   return `
 	<!DOCTYPE html>
 
@@ -79,8 +87,10 @@ function getWebviewContent(fileContent) {
 	</head>
 	<body>
 			<h1>Env Editor</h1>
-			<p>${envTemplate.join(' ')}</p>
+			<p>${envTemplateHTML.join('')}</p>
+
 			<p>${envMode.join(' ')}</p>
+
 			<p>${envValue.join(' ')}</p>
 	</body>
 	</html>
