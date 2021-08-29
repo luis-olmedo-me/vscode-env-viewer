@@ -85,15 +85,23 @@ function getWebviewContent(fileContent) {
   const envValues = getValues(fileContent, envKeys.ENV_VALUE)
 
   const parsedEnvTemplate = parse(envTemplate)
-  console.log('parseEnvValues(envValues)', parseEnvValues(envValues))
+  const parsedEnvValues = parseEnvValues(envValues)
+
   const envTemplateHTML = Object.keys(parsedEnvTemplate).map((envKey) => {
     const value = parsedEnvTemplate[envKey]
     const formattedValue = `${envKey}: `
+    const hasInputSelect = parsedEnvValues.hasOwnProperty(envKey)
+
+    const input = !hasInputSelect
+      ? `<input type="text" value="${value}"/>`
+      : `<select>${parsedEnvValues[envKey]
+          .map((option) => `<option value="${option}">${option}</option>`)
+          .join('')}</select>`
 
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><input type="text" value="${value}"/></td>
+				<td>${input}</td>
 		</tr>
 		`
   })
