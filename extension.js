@@ -1,5 +1,9 @@
 const vscode = require('vscode')
 const { parse } = require('dotenv')
+const { EndOfLineState } = require('typescript')
+const { env } = require('process')
+
+let currentFile = null
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -14,8 +18,18 @@ function activate(context) {
         vscode.ViewColumn.Two
       )
 
-      const fileContent = vscode.window.activeTextEditor.document.getText()
+      currentFile = vscode.window.activeTextEditor
+      const fileContent = currentFile.document.getText()
       panel.webview.html = getWebviewContent(fileContent)
+
+      /* currentFile.edit((editBuilder) => {
+        const pos = new vscode.Position(0, 0)
+        const nxt = new vscode.Position(0, 1)
+
+        editBuilder.replace()
+        editBuilder.insert(pos, '\\')
+        editBuilder.delete(new vscode.Range(pos, nxt))
+      }) */
 
       vscode.window.showInformationMessage('Interpretating...')
     }
@@ -36,6 +50,26 @@ const envKeys = {
   ENV_TEMPLATE: 'env-template',
   ENV_MODE: 'env-mode',
   ENV_VALUE: 'env-value',
+}
+
+function getValuesArray(lines = []) {
+  let key = envKeys.ENV_TEMPLATE
+
+  return lines.reduce((sectionedLines, line) => {
+    const hasNewKey = line.includes('// @')
+
+    if (hasNewKey) {
+      const newKey = Object.values(envKeys).find((envKey) =>
+        line.includes(envKey)
+      )
+
+      key = newKey || key
+    }
+
+    const oldLines = sectionedLines[key] || {}
+
+    return { ...sectionedLines, [key]: [...oldLines, line] }
+  }, {})
 }
 
 function getValues(allValues, key) {
@@ -102,6 +136,11 @@ const parseEnvModes = (modes) => {
 }
 
 function getWebviewContent(fileContent) {
+  const lines = fileContent.split('\r\n')
+  const parsedLines = getValuesArray(lines)
+
+  console.log('parsedLines', parsedLines)
+
   const envTemplate = getValues(fileContent, envKeys.ENV_TEMPLATE)
   const envModes = getValues(fileContent, envKeys.ENV_MODE)
   const envValues = getValues(fileContent, envKeys.ENV_VALUE)
