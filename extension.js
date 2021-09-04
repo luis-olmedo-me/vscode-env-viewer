@@ -48,7 +48,8 @@ function activate(context) {
       const panel = vscode.window.createWebviewPanel(
         'editor',
         'Env Editor',
-        vscode.ViewColumn.Two
+        vscode.ViewColumn.Two,
+        { enableScripts: true }
       )
 
       environment.setFile(vscode.window.activeTextEditor)
@@ -62,6 +63,18 @@ function activate(context) {
         editBuilder.insert(pos, '\\')
         editBuilder.delete(new vscode.Range(pos, nxt))
       }) */
+
+      panel.webview.onDidReceiveMessage(
+        (message) => {
+          switch (message.command) {
+            case 'alert':
+              vscode.window.showErrorMessage(message.text)
+              return console.log('received', message)
+          }
+        },
+        undefined,
+        context.subscriptions
+      )
 
       vscode.window.showInformationMessage('Interpretating...')
     }
@@ -164,6 +177,17 @@ const parseEnvValues1 = (setOfLines) => {
   }, {})
 }
 
+const getEventFunction = () => {
+  return `
+  (function() {
+    vscode.postMessage({
+      command: 'alert',
+      text: 'Something Changed'
+    })
+  }())
+  `
+}
+
 function getWebviewContent() {
   const { template, modes, values } = environment
 
@@ -174,7 +198,7 @@ function getWebviewContent() {
 
     const input = !hasInputSelect
       ? `<input type="text" value="${value}"/>`
-      : `<select>${values[envKey]
+      : `<select onChange="${getEventFunction()}">${values[envKey]
           .map((option) => `<option value="${option}">${option}</option>`)
           .join('')}</select>`
 
@@ -196,7 +220,7 @@ function getWebviewContent() {
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><select>${options}</select></td>
+				<td><select onChange="${getEventFunction()}">${options}</select></td>
 		</tr>
 		`
   })
@@ -232,6 +256,10 @@ function getWebviewContent() {
 					</tr>
 					${envTemplateHTML.join('')}
 			</table>
+
+      <script>
+        const vscode = acquireVsCodeApi();
+      </script>
 	</body>
 	</html>
 	`
