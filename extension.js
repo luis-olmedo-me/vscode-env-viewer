@@ -31,8 +31,8 @@ class EnvironmentHandler {
     )
 
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
-    this.modes = parseEnvModes1(parsedLines[envKeys.ENV_MODE])
-    this.values = parseEnvValues1(parsedLines[envKeys.ENV_VALUE])
+    this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
+    this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
   }
 }
 
@@ -147,7 +147,7 @@ const parseEnvTemplate = (lines) => {
   return parse(valuesInLine)
 }
 
-const parseEnvModes1 = (setOfLines) => {
+const parseEnvModes = (setOfLines) => {
   return setOfLines.reduce((envModes, lines) => {
     const [metadata, ...values] = lines
     const valuesInLine = values.join('\r\n').replace('//', '')
@@ -164,7 +164,7 @@ const parseEnvModes1 = (setOfLines) => {
   }, {})
 }
 
-const parseEnvValues1 = (setOfLines) => {
+const parseEnvValues = (setOfLines) => {
   return setOfLines.reduce((envModes, lines) => {
     const [metadata, valuesInLine] = lines
     const values = valuesInLine.replace('//', '').split(',')
