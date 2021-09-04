@@ -157,6 +157,42 @@ const parseEnvModes = (modes) => {
   }, {})
 }
 
+const parseEnvTemplate = (lines) => {
+  const values = lines.slice(1)
+  const valuesInLine = values.join('\r\n')
+
+  return parse(valuesInLine)
+}
+
+const parseEnvModes1 = (setOfLines) => {
+  return setOfLines.reduce((envModes, lines) => {
+    const [metadata, ...values] = lines
+    const valuesInLine = values.join('\r\n').replace('//', '')
+
+    const cuttedMetadata = metadata.match(/\/\/ @env-mode:(\w+)\.(\w+)/)
+    const [scope, key] = cuttedMetadata.slice(1)
+
+    const carriedScopes = envModes[scope] || {}
+
+    return {
+      ...envModes,
+      [scope]: { ...carriedScopes, [key]: parse(valuesInLine) },
+    }
+  }, {})
+}
+
+const parseEnvValues1 = (setOfLines) => {
+  return setOfLines.reduce((envModes, lines) => {
+    const [metadata, valuesInLine] = lines
+    const values = valuesInLine.replace('//', '').split(',')
+
+    const cuttedMetadata = metadata.match(/\/\/ @env-value:(\w+)/)
+    const [key] = cuttedMetadata.slice(1)
+
+    return { ...envModes, [key]: values.map((value) => value.trim()) }
+  }, {})
+}
+
 function getWebviewContent(fileContent) {
   const lines = fileContent.split('\r\n')
   const parsedLines = getValuesArray(lines)
@@ -169,24 +205,18 @@ function getWebviewContent(fileContent) {
     parsedLines[envKeys.ENV_VALUE]
   )
 
-  console.log('parsedLines', parsedLines)
+  const envTemplate = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
+  const envModes = parseEnvModes1(parsedLines[envKeys.ENV_MODE])
+  const envValues = parseEnvValues1(parsedLines[envKeys.ENV_VALUE])
 
-  const envTemplate = getValues(fileContent, envKeys.ENV_TEMPLATE)
-  const envModes = getValues(fileContent, envKeys.ENV_MODE)
-  const envValues = getValues(fileContent, envKeys.ENV_VALUE)
-
-  const parsedEnvTemplate = parse(envTemplate)
-  const parsedEnvValues = parseEnvValues(envValues)
-  const parsedEnvModes = parseEnvModes(envModes)
-
-  const envTemplateHTML = Object.keys(parsedEnvTemplate).map((envKey) => {
-    const value = parsedEnvTemplate[envKey]
+  const envTemplateHTML = Object.keys(envTemplate).map((envKey) => {
+    const value = envTemplate[envKey]
     const formattedValue = `${envKey}: `
-    const hasInputSelect = parsedEnvValues.hasOwnProperty(envKey)
+    const hasInputSelect = envValues.hasOwnProperty(envKey)
 
     const input = !hasInputSelect
       ? `<input type="text" value="${value}"/>`
-      : `<select>${parsedEnvValues[envKey]
+      : `<select>${envValues[envKey]
           .map((option) => `<option value="${option}">${option}</option>`)
           .join('')}</select>`
 
@@ -198,8 +228,8 @@ function getWebviewContent(fileContent) {
 		`
   })
 
-  const envModesHTML = Object.keys(parsedEnvModes).map((envKey) => {
-    const values = parsedEnvModes[envKey]
+  const envModesHTML = Object.keys(envModes).map((envKey) => {
+    const values = envModes[envKey]
     const formattedValue = `${envKey}: `
     const options = Object.keys(values)
       .map((option) => `<option value="${option}">${option}</option>`)
