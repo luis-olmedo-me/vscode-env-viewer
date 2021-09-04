@@ -8,6 +8,7 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
+    this.overwritten = {}
   }
 
   setFile(file) {
@@ -31,6 +32,7 @@ class EnvironmentHandler {
     )
 
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
+    this.overwritten = parseEnvTemplate(parsedLines[envKeys.ENV_OVERWRITTEN])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
   }
@@ -94,6 +96,7 @@ const envKeys = {
   ENV_TEMPLATE: 'env-template',
   ENV_MODE: 'env-mode',
   ENV_VALUE: 'env-value',
+  ENV_OVERWRITTEN: 'env-overwritten',
 }
 
 function getValuesArray(lines = []) {
@@ -193,7 +196,8 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
 }
 
 function getWebviewContent() {
-  const { template, modes, values } = environment
+  const { template, modes, values, overwritten } = environment
+  console.log({ overwritten })
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
     const value = template[envKey]
