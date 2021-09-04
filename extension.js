@@ -1,7 +1,42 @@
 const vscode = require('vscode')
 const { parse } = require('dotenv')
 
-let currentFile = null
+class EnvironmentHandler {
+  constructor() {
+    this.file = null
+    this.lines = []
+    this.template = {}
+    this.modes = {}
+    this.values = {}
+  }
+
+  setFile(file) {
+    const fileContent = file.document.getText()
+
+    this.file = file
+    this.lines = fileContent.split('\r\n')
+
+    this.readEnvironment()
+  }
+
+  readEnvironment() {
+    const parsedLines = getValuesArray(this.lines)
+
+    parsedLines[envKeys.ENV_MODE] = formatGroupLines(
+      parsedLines[envKeys.ENV_MODE]
+    )
+
+    parsedLines[envKeys.ENV_VALUE] = formatGroupLines(
+      parsedLines[envKeys.ENV_VALUE]
+    )
+
+    this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
+    this.modes = parseEnvModes1(parsedLines[envKeys.ENV_MODE])
+    this.values = parseEnvValues1(parsedLines[envKeys.ENV_VALUE])
+  }
+}
+
+const environment = new EnvironmentHandler()
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -16,9 +51,8 @@ function activate(context) {
         vscode.ViewColumn.Two
       )
 
-      currentFile = vscode.window.activeTextEditor
-      const fileContent = currentFile.document.getText()
-      panel.webview.html = getWebviewContent(fileContent)
+      environment.setFile(vscode.window.activeTextEditor)
+      panel.webview.html = getWebviewContent()
 
       /* currentFile.edit((editBuilder) => {
         const pos = new vscode.Position(0, 0)
@@ -130,30 +164,17 @@ const parseEnvValues1 = (setOfLines) => {
   }, {})
 }
 
-function getWebviewContent(fileContent) {
-  const lines = fileContent.split('\r\n')
-  const parsedLines = getValuesArray(lines)
+function getWebviewContent() {
+  const { template, modes, values } = environment
 
-  parsedLines[envKeys.ENV_MODE] = formatGroupLines(
-    parsedLines[envKeys.ENV_MODE]
-  )
-
-  parsedLines[envKeys.ENV_VALUE] = formatGroupLines(
-    parsedLines[envKeys.ENV_VALUE]
-  )
-
-  const envTemplate = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
-  const envModes = parseEnvModes1(parsedLines[envKeys.ENV_MODE])
-  const envValues = parseEnvValues1(parsedLines[envKeys.ENV_VALUE])
-
-  const envTemplateHTML = Object.keys(envTemplate).map((envKey) => {
-    const value = envTemplate[envKey]
+  const envTemplateHTML = Object.keys(template).map((envKey) => {
+    const value = template[envKey]
     const formattedValue = `${envKey}: `
-    const hasInputSelect = envValues.hasOwnProperty(envKey)
+    const hasInputSelect = values.hasOwnProperty(envKey)
 
     const input = !hasInputSelect
       ? `<input type="text" value="${value}"/>`
-      : `<select>${envValues[envKey]
+      : `<select>${values[envKey]
           .map((option) => `<option value="${option}">${option}</option>`)
           .join('')}</select>`
 
@@ -165,8 +186,8 @@ function getWebviewContent(fileContent) {
 		`
   })
 
-  const envModesHTML = Object.keys(envModes).map((envKey) => {
-    const values = envModes[envKey]
+  const envModesHTML = Object.keys(modes).map((envKey) => {
+    const values = modes[envKey]
     const formattedValue = `${envKey}: `
     const options = Object.keys(values)
       .map((option) => `<option value="${option}">${option}</option>`)
