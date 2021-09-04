@@ -67,8 +67,7 @@ function activate(context) {
       panel.webview.onDidReceiveMessage(
         (message) => {
           switch (message.command) {
-            case 'alert':
-              vscode.window.showErrorMessage(message.text)
+            case 'env-viewer.changedValueEvent':
               return console.log('received', message)
           }
         },
@@ -177,12 +176,17 @@ const parseEnvValues1 = (setOfLines) => {
   }, {})
 }
 
-const getEventFunction = () => {
+const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   return `
   (function() {
+    const value = event.target.value
+    const envType = '${envType}'
+    const envKey = '${envKey}'
+    const scope = '${scope}'
+
     vscode.postMessage({
-      command: 'alert',
-      text: 'Something Changed'
+      command: 'env-viewer.changedValueEvent',
+      data: { envType, envKey, scope, value }
     })
   }())
   `
@@ -196,9 +200,12 @@ function getWebviewContent() {
     const formattedValue = `${envKey}: `
     const hasInputSelect = values.hasOwnProperty(envKey)
 
+    const eventData = { envType: envKeys.ENV_VALUE, envKey }
+    const commonProps = `onChange="${getEventFunction(eventData)}"`
+
     const input = !hasInputSelect
-      ? `<input type="text" value="${value}"/>`
-      : `<select onChange="${getEventFunction()}">${values[envKey]
+      ? `<input type="text" ${commonProps} value="${value}"/>`
+      : `<select ${commonProps}>${values[envKey]
           .map((option) => `<option value="${option}">${option}</option>`)
           .join('')}</select>`
 
@@ -217,10 +224,12 @@ function getWebviewContent() {
       .map((option) => `<option value="${option}">${option}</option>`)
       .join('')
 
+    const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
+
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><select onChange="${getEventFunction()}">${options}</select></td>
+				<td><select onChange="${getEventFunction(eventData)}">${options}</select></td>
 		</tr>
 		`
   })
