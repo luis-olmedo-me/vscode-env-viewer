@@ -1,7 +1,5 @@
 const vscode = require('vscode')
 const { parse } = require('dotenv')
-const { EndOfLineState } = require('typescript')
-const { env } = require('process')
 
 let currentFile = null
 
@@ -66,10 +64,34 @@ function getValuesArray(lines = []) {
       key = newKey || key
     }
 
-    const oldLines = sectionedLines[key] || {}
+    const oldLines = sectionedLines[key] || []
 
     return { ...sectionedLines, [key]: [...oldLines, line] }
   }, {})
+}
+
+function formatGroupLines(lines) {
+  let carriedLines = []
+
+  const formattedLines = lines.reduce((sectionedLines, line) => {
+    const hasNewKey = line.includes('// @')
+
+    if (hasNewKey) {
+      sectionedLines = carriedLines.length
+        ? [...sectionedLines, carriedLines]
+        : sectionedLines
+
+      carriedLines = [line]
+    } else {
+      carriedLines = [...carriedLines, line]
+    }
+
+    return sectionedLines
+  }, [])
+
+  return carriedLines.length
+    ? [...formattedLines, carriedLines]
+    : formattedLines
 }
 
 function getValues(allValues, key) {
@@ -138,6 +160,14 @@ const parseEnvModes = (modes) => {
 function getWebviewContent(fileContent) {
   const lines = fileContent.split('\r\n')
   const parsedLines = getValuesArray(lines)
+
+  parsedLines[envKeys.ENV_MODE] = formatGroupLines(
+    parsedLines[envKeys.ENV_MODE]
+  )
+
+  parsedLines[envKeys.ENV_VALUE] = formatGroupLines(
+    parsedLines[envKeys.ENV_VALUE]
+  )
 
   console.log('parsedLines', parsedLines)
 
