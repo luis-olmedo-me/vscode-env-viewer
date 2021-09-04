@@ -94,69 +94,6 @@ function formatGroupLines(lines) {
     : formattedLines
 }
 
-function getValues(allValues, key) {
-  const toCut = `// @${key}`
-
-  let shouldKeepLooking = true
-  let envValues = []
-  let carriedIndex = 0
-
-  while (shouldKeepLooking) {
-    const firstIndex = allValues.indexOf(toCut, carriedIndex)
-    const lastIndex = allValues.indexOf('// @', firstIndex + 1)
-    const validatedLastIndex = lastIndex !== -1 ? lastIndex : allValues.length
-
-    const newValue = allValues
-      .slice(firstIndex + toCut.length, validatedLastIndex)
-      .trim()
-
-    if (newValue) {
-      carriedIndex = validatedLastIndex
-      envValues = [...envValues, newValue]
-    } else {
-      shouldKeepLooking = false
-    }
-  }
-
-  return envValues
-}
-
-const parseEnvValues = (values) => {
-  return values.reduce((valuesAsObjects, value) => {
-    const [formattedValue] = value.match(/\w.+/) || []
-    const parsedValue = parse(formattedValue)
-    const valueSplitted = Object.keys(parsedValue).reduce((values, key) => {
-      const inlineValue = parsedValue[key]
-
-      return { ...values, [key]: inlineValue.split(',') }
-    }, {})
-
-    return { ...valuesAsObjects, ...valueSplitted }
-  }, {})
-}
-
-const parseEnvModes = (modes) => {
-  return modes.reduce((envModes, mode) => {
-    const [modeMetadata] = mode.match(/\w.+/) || ['']
-    const [key, value] = modeMetadata.split('.')
-    const carriedEnvKeyValues = envModes[key] || {}
-    const carriedEnvValues = carriedEnvKeyValues[value] || {}
-
-    const envValues = mode
-      .replace(`:${modeMetadata}`, '')
-      .replace(/^\/\//gm, '')
-    const parsedValue = parse(envValues)
-
-    return {
-      ...envModes,
-      [key]: {
-        ...carriedEnvKeyValues,
-        [value]: { ...carriedEnvValues, ...parsedValue },
-      },
-    }
-  }, {})
-}
-
 const parseEnvTemplate = (lines) => {
   const values = lines.slice(1)
   const valuesInLine = values.join('\r\n')
