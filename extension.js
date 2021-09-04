@@ -36,6 +36,19 @@ class EnvironmentHandler {
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
   }
+
+  updateEnvironment({ envType, envKey, scope, value }) {
+    switch (envType) {
+      case envKeys.ENV_VALUE:
+        this.overwritten[envKey] = value
+        break
+
+      case envKeys.ENV_MODE:
+        this.overwritten = { ...this.overwritten, ...this.modes[scope][value] }
+        break
+    }
+    console.log('updated overwritten:', this.overwritten)
+  }
 }
 
 const environment = new EnvironmentHandler()
@@ -70,7 +83,7 @@ function activate(context) {
         (message) => {
           switch (message.command) {
             case 'env-viewer.changedValueEvent':
-              return console.log('received', message)
+              environment.updateEnvironment(message.data)
           }
         },
         undefined,
@@ -153,7 +166,9 @@ const parseEnvTemplate = (lines) => {
 const parseEnvModes = (setOfLines) => {
   return setOfLines.reduce((envModes, lines) => {
     const [metadata, ...values] = lines
-    const valuesInLine = values.join('\r\n').replace('//', '')
+    const valuesInLine = values
+      .map((value) => value.replace('//', ''))
+      .join('\r\n')
 
     const cuttedMetadata = metadata.match(/\/\/ @env-mode:(\w+)\.(\w+)/)
     const [scope, key] = cuttedMetadata.slice(1)
@@ -197,7 +212,7 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
 
 function getWebviewContent() {
   const { template, modes, values, overwritten } = environment
-  console.log({ overwritten })
+  console.log({ template, modes, values, overwritten })
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
     const value = template[envKey]
