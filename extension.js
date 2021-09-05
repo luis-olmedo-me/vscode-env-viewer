@@ -35,6 +35,8 @@ class EnvironmentHandler {
     this.overwritten = parseEnvTemplate(parsedLines[envKeys.ENV_OVERWRITTEN])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
+
+    this.overwritten = { ...this.template, ...this.overwritten }
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
@@ -47,6 +49,34 @@ class EnvironmentHandler {
         this.overwritten = { ...this.overwritten, ...this.modes[scope][value] }
         break
     }
+
+    const overwrittenIndex =
+      this.lines.findIndex((line) => line.includes('// @env-overwritten')) + 1
+
+    this.file
+      .edit((editBuilder) => {
+        Object.keys(this.overwritten).forEach((key, index) => {
+          const line = this.file.document.lineAt(overwrittenIndex + index).text
+
+          const linePosition = new vscode.Position(overwrittenIndex + index, 0)
+          const linePositionEnd = new vscode.Position(
+            overwrittenIndex + index,
+            line.length
+          )
+
+          const value = this.overwritten[key]
+
+          editBuilder.replace(
+            new vscode.Range(linePosition, linePositionEnd),
+            `${key}=${value}`
+          )
+        })
+      })
+      .then(() => {
+        this.file.document.save()
+        this.setFile(this.file)
+      })
+
     console.log('updated overwritten:', this.overwritten)
   }
 }
@@ -212,10 +242,10 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
 
 function getWebviewContent() {
   const { template, modes, values, overwritten } = environment
-  console.log({ template, modes, values, overwritten })
+  const realValues = { ...template, ...overwritten }
 
-  const envTemplateHTML = Object.keys(template).map((envKey) => {
-    const value = template[envKey]
+  const envTemplateHTML = Object.keys(realValues).map((envKey) => {
+    const value = realValues[envKey]
     const formattedValue = `${envKey}: `
     const hasInputSelect = values.hasOwnProperty(envKey)
 
