@@ -74,14 +74,22 @@ class EnvironmentHandler {
         })
       })
       .then(() => {
-        this.file.document.save()
+        this.file.document.save().then(() => this.onSave())
         this.setFile(this.file)
-        this.onSave()
       })
   }
 
   handleOnSave(onSave) {
     this.onSave = onSave
+  }
+
+  handleOnExternalSave(file) {
+    const isSameFile = this.file.document.uri.path === file.uri.path
+
+    if (isSameFile) {
+      this.setFile(this.file)
+      this.onSave()
+    }
   }
 }
 
@@ -135,7 +143,11 @@ function activate(context) {
     }
   )
 
-  context.subscriptions.push(interpretateCommand)
+  const didSaveTextEvent = vscode.workspace.onDidSaveTextDocument((file) =>
+    environment.handleOnExternalSave(file)
+  )
+
+  context.subscriptions.push(interpretateCommand, didSaveTextEvent)
 }
 
 module.exports = {
