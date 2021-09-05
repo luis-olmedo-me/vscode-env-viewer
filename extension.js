@@ -250,7 +250,12 @@ function getWebviewContent() {
     const input = !hasInputSelect
       ? `<input type="text" ${commonProps} value="${value}"/>`
       : `<select ${commonProps}>${values[envKey]
-          .map((option) => `<option value="${option}">${option}</option>`)
+          .map((option) => {
+            const isSelected = value === option
+            const selection = isSelected ? 'selected' : ''
+
+            return `<option ${selection} value="${option}">${option}</option>`
+          })
           .join('')}</select>`
 
     return `
