@@ -1,65 +1,174 @@
-# env-viewer README
+<!--
+repo name: ENV Variable
+description: An interpreter for environment variable files.
+github name:  olmedoluis
+link: https://github.com/olmedoluis/vscode-env-viewer
+email: olmedoluis012@gmail.com
+-->
 
-This is the README for your extension "env-viewer". After writing up a brief description, we recommend including the following sections.
+<!-- PROJECT SHIELDS -->
 
-## Features
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+<!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-For example if there is an image subfolder under your extension project workspace:
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+    <a href="https://github.com/olmedoluis/vscode-env-viewer">
+        <img src="media/seahorse.png" alt="Logo" width="80" height="80">
+    </a>
+<h3 align="center"><a href="https://github.com/olmedoluis/vscode-env-viewer">readme-template-extension</a></h3>
+    <p align="center">
+        An awesome readme Template extension to quickstart your project
+        <br />
+        <a href="https://marketplace.visualstudio.com/items?itemName=oGranny.md-template"><strong>Visual studio market place 📃</strong></a>
+        <br />
+        <br />
+        <a href="//github.com/Md-Template/ oGranny">View Demo</a>
+        •
+        <a href="https://github.com/olmedoluis/vscode-env-viewer/issues">Report Bug</a>
+        •
+        <a href="https://github.com/olmedoluis/vscode-env-viewer/issues">Request Feature</a>
+    </p>
+</p>
 
-\!\[feature X\]\(images/feature-x.png\)
+<!-- TABLE OF CONTENTS -->
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Table of Contents
 
-## Requirements
+- [Table of Contents](#table-of-contents)
+- [About The Project](#about-the-project)
+  - [Built With](#built-with)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+<!-- ABOUT THE PROJECT -->
 
-## Extension Settings
+## About The Project
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Couldn't find a better way to organize environment variables than create an extension by my self. Even separating the variables with comments or also explaining with comments too, it never got better.
 
-For example:
+With this extension may take some time to set up the proper values but it lets you see what you're applying or if some values got overwritten explicitly and that was what I was looking for.
 
-This extension contributes the following settings:
+Once you get it ready you'll just need to select your modes/values by dropdown selection and that's it. Nothing about searching for those variables that are never close to each other.
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+### Built With
 
-## Known Issues
+- [yo]()
+- [vsce]()
+- [dotenv]()
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+<!-- GETTING STARTED -->
 
-## Release Notes
+## Getting Started
 
-Users appreciate release notes as you update your extension.
+- Download the extension
+- Go to your .env file
+- Once you focus on your .env file, click on the magnifying glass icon at the top right menu
+- Enjoy of easily change environment values
 
-### 1.0.0
+### Prerequisites
 
-Initial release of ...
+- [VS Code](https://code.visualstudio.com)
 
-### 1.0.1
+### Installation
 
-Fixed issue #.
+download this extension directly from VS code [marketplace](https://marketplace.visualstudio.com/vscode)
 
-### 1.1.0
+<!-- USAGE EXAMPLES -->
 
-Added features X, Y, and Z.
+## Usage
 
------------------------------------------------------------------------------------------------------------
+- There is 4 @ tags that you can use:
+  - @env-template: This should be the default values you'll use.
+  - @env-values: This should be the values that an environment variable can take.
+  - @env-modes: This is a set of environment variables.
+  - @env-overwritten: This are the applied values.
 
-## Working with Markdown
+Example:
 
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+```dotenv
+// @env-template
+ENV=test
+BASIC_URL="www.coso.coam"
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
 
-### For more information
+//---------------------------------------
+// @env-mode:ENVIRONMENT.test
+//    ENV=test
+//    BASIC_URL="www.url.com"
+//---------------------------------------
+// @env-mode:ENVIRONMENT.prod
+//    ENV=prod
+//    BASIC_URL="www.url2.com"
+//---------------------------------------
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
-**Enjoy!**
+//---------------------------------------
+// @env-value:ENV
+//    test,prod
+//---------------------------------------
+
+
+// @env-overwritten
+ENV=test
+BASIC_URL=www.url2.com
+```
+
+<!-- ROADMAP -->
+
+## Roadmap
+
+See the [open issues](https://github.com/olmedoluis/vscode-env-viewer/issues) for a list of proposed features (and known issues).
+
+<!-- CONTRIBUTING -->
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<!-- LICENSE -->
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<!-- CONTACT -->
+
+## Contact
+
+Luis Olmedo - olmedoluis012@gmail.com
+
+Project Link: [https://github.com/olmedoluis/vscode-env-viewer](https://github.com/olmedoluis/vscode-env-viewer)
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/olmedoluis/vscode-env-viewer.svg?style=flat-square
+[contributors-url]: https://github.com/olmedoluis/vscode-env-viewer/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/olmedoluis/vscode-env-viewer.svg?style=flat-square
+[forks-url]: https://github.com/olmedoluis/vscode-env-viewer/network/members
+[stars-shield]: https://img.shields.io/github/stars/olmedoluis/vscode-env-viewer.svg?style=flat-square
+[stars-url]: https://github.com/olmedoluis/vscode-env-viewer/stargazers
+[issues-shield]: https://img.shields.io/github/issues/olmedoluis/vscode-env-viewer.svg?style=flat-square
+[issues-url]: https://github.com/olmedoluis/vscode-env-viewer/issues
+[license-shield]: https://img.shields.io/github/license/olmedoluis/vscode-env-viewer.svg?style=flat-square
+[license-url]: https://github.com/olmedoluis/vscode-env-viewer/blob/master/LICENSE.txt
+[product-screenshot]: images/screenshot.png

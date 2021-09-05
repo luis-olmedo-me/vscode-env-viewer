@@ -1,6 +1,7 @@
 {
   "name": "env-viewer",
   "displayName": "env-viewer",
+  "publisher": "LuisOlmedo",
   "description": "Interactive view for env files",
   "version": "0.0.1",
   "engines": {
