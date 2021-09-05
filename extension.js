@@ -240,7 +240,8 @@ function getWebviewContent() {
     const hasInputSelect = values.hasOwnProperty(envKey)
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
-    const commonProps = `onChange="${getEventFunction(eventData)}"`
+    const handleOnChange = getEventFunction(eventData)
+    const commonProps = `onChange="${handleOnChange}" class="input"`
 
     const input = !hasInputSelect
       ? `<input type="text" ${commonProps} value="${value}"/>`
@@ -264,11 +265,12 @@ function getWebviewContent() {
       .join('')
 
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
+    const handleOnChange = getEventFunction(eventData)
 
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><select onChange="${getEventFunction(eventData)}">${options}</select></td>
+				<td><select class="input" onChange="${handleOnChange}">${options}</select></td>
 		</tr>
 		`
   })
@@ -286,9 +288,9 @@ function getWebviewContent() {
 	<body>
 			<h1>Env Editor</h1>
 
-      <h2>Modes</h2>
+      <h2 class="sub-title">Modes</h2>
 
-      <table>
+      <table class="table">
           <tr>
               <th>MODE</th>
               <th>VALUE</th>
@@ -296,9 +298,9 @@ function getWebviewContent() {
           ${envModesHTML.join('')}
       </table>
 
-      <h2>Values</h2>
+      <h2 class="sub-title">Values</h2>
 			
-      <table>
+      <table class="table">
 					<tr>
 							<th>KEY</th>
 							<th>VALUE</th>
@@ -316,8 +318,21 @@ function getWebviewContent() {
 
 function getStyles() {
   return `
-    h1 {
-      color: red;
+    .sub-title {
+      margin: 30px 0 10px;
+    }
+
+    .table,
+    .input {
+      width: 100%;
+    }
+
+    .table td {
+      width: 50vw;
+    }
+    
+    input {
+      box-sizing: border-box;
     }
   `
 }
