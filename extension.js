@@ -90,7 +90,7 @@ const envKeys = {
 
 const eventKeys = {
   CHANGED_VALUE: 'env-viewer.changedValueEvent',
-  INTERPRETATE_ENVIRONMENT: 'env-viewer.interpretateEnv',
+  OPEN_PREVIEW: 'env-viewer.openPreviewToTheSide',
 }
 
 function handleDidReceiveMessage(message) {
@@ -105,7 +105,7 @@ function handleDidReceiveMessage(message) {
  */
 function activate(context) {
   let interpretateCommand = vscode.commands.registerCommand(
-    eventKeys.INTERPRETATE_ENVIRONMENT,
+    eventKeys.OPEN_PREVIEW,
     function () {
       const panel = vscode.window.createWebviewPanel(
         'editor',
@@ -122,8 +122,6 @@ function activate(context) {
         undefined,
         context.subscriptions
       )
-
-      vscode.window.showInformationMessage('Interpretating...')
     }
   )
 

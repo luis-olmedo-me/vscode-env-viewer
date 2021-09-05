@@ -1,43 +1,94 @@
 {
-	"name": "env-viewer",
-	"displayName": "env-viewer",
-	"description": "Interactive view for env files",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.59.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:env-viewer.interpretateEnv"
-	],
-	"main": "./extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "env-viewer.interpretateEnv",
-				"title": "Interpretate Env"
-			}
-		]
-	},
-	"scripts": {
-		"lint": "eslint .",
-		"pretest": "npm run lint",
-		"test": "node ./test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/vscode": "^1.59.0",
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.2.2",
-		"@types/node": "14.x",
-		"eslint": "^7.27.0",
-		"glob": "^7.1.7",
-		"mocha": "^8.4.0",
-		"typescript": "^4.3.2",
-		"vscode-test": "^1.5.2"
-	},
-	"dependencies": {
-		"dotenv": "^10.0.0"
-	}
+  "name": "env-viewer",
+  "displayName": "env-viewer",
+  "description": "Interactive view for env files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.59.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:env-viewer.openPreviewToTheSide"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "env-viewer.openPreviewToTheSide",
+        "title": "Interpretate Env"
+      }
+    ],
+    "languages": [
+      {
+        "id": "dotenv",
+        "aliases": [
+          "Environment Variables",
+          "dotenv",
+          "env"
+        ],
+        "extensions": [
+          ".flaskenv",
+          ".env",
+          ".env-sample",
+          ".env.example",
+          ".env.local",
+          ".env.dev",
+          ".env.dev.local",
+          ".env.build",
+          ".env.build.local",
+          ".env.development",
+          ".env.development.local",
+          ".env.test",
+          ".env.test.local",
+          ".env.testing",
+          ".env.qa",
+          ".env.qa.local",
+          ".env.uat",
+          ".env.uat.local",
+          ".env.stag",
+          ".env.stag.local",
+          ".env.stage",
+          ".env.stage.local",
+          ".env.staging",
+          ".env.staging.local",
+          ".env.live",
+          ".env.live.local",
+          ".env.production",
+          ".env.production.local",
+          ".env.prod",
+          ".env.prod.local"
+        ]
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "env-viewer.openPreviewToTheSide",
+          "when": "editorLangId == dotenv",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.59.0",
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "14.x",
+    "eslint": "^7.27.0",
+    "glob": "^7.1.7",
+    "mocha": "^8.4.0",
+    "typescript": "^4.3.2",
+    "vscode-test": "^1.5.2"
+  },
+  "dependencies": {
+    "dotenv": "^10.0.0"
+  }
 }
