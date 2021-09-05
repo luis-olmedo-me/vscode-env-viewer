@@ -1,4 +1,4 @@
-const path = require('path')
+const { basename } = require('path')
 const vscode = require('vscode')
 const { parse } = require('dotenv')
 class EnvironmentHandler {
@@ -109,7 +109,7 @@ function activate(context) {
     function () {
       const panel = vscode.window.createWebviewPanel(
         'editor',
-        vscode.window.activeTextEditor.document.fileName,
+        basename(vscode.window.activeTextEditor.document.fileName),
         vscode.ViewColumn.Two,
         { enableScripts: true }
       )
@@ -286,7 +286,7 @@ function getWebviewContent() {
 			<title>Env Editor</title>
 	</head>
 	<body>
-			<h1>Env Editor</h1>
+			<h1 class="title">Environment Editor</h1>
 
       <h2 class="sub-title">Modes</h2>
       <hr />
@@ -320,6 +320,10 @@ function getWebviewContent() {
 
 function getStyles() {
   return `
+    .title {
+      text-align: center;
+    }
+
     .sub-title {
       margin: 30px 0 10px;
     }
@@ -333,8 +337,10 @@ function getStyles() {
       width: 50vw;
     }
     
-    input {
+    .input {
       box-sizing: border-box;
+      border: none;
+      padding: 4px 5px;
     }
   `
 }
