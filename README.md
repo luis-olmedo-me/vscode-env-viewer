@@ -20,9 +20,9 @@ email: olmedoluis012@gmail.com
 <br />
 <p align="center">
     <a href="https://github.com/olmedoluis/vscode-env-viewer">
-        <img src="media/seahorse.png" alt="Logo" width="80" height="80">
+        <img src="https://github.com/olmedoluis/vscode-env-viewer/blob/main/media/logo/seahorse.png" alt="Logo" width="80" height="80">
     </a>
-<h3 align="center"><a href="https://github.com/olmedoluis/vscode-env-viewer">readme-template-extension</a></h3>
+<h3 align="center"><a href="https://github.com/olmedoluis/vscode-env-viewer">ENV Viewer</a></h3>
     <p align="center">
         An awesome readme Template extension to quickstart your project
         <br />
