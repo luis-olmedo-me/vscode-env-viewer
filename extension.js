@@ -299,10 +299,12 @@ function getWebviewContent() {
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
     const handleOnChange = getEventFunction(eventData)
 
+    const customRow = !hasSelectedOptions ? `class="custom"` : ''
+
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><select class="input" onChange="${handleOnChange}">${options.join()}</select></td>
+				<td ${customRow} ><select class="input" onChange="${handleOnChange}">${options.join()}</select></td>
 		</tr>
 		`
   })
@@ -367,6 +369,15 @@ function getStyles() {
 
     .table td {
       width: 50vw;
+    }
+
+    .table td:last-child {
+      padding-left: 10px;
+      background: seagreen;
+    }
+
+    .table td.custom:last-child {
+      background: orange;
     }
     
     .input {
