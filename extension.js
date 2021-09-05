@@ -9,6 +9,7 @@ class EnvironmentHandler {
     this.modes = {}
     this.values = {}
     this.overwritten = {}
+    this.onSave = () => {}
   }
 
   setFile(file) {
@@ -75,7 +76,12 @@ class EnvironmentHandler {
       .then(() => {
         this.file.document.save()
         this.setFile(this.file)
+        this.onSave()
       })
+  }
+
+  handleOnSave(onSave) {
+    this.onSave = onSave
   }
 }
 
@@ -116,6 +122,10 @@ function activate(context) {
 
       environment.setFile(vscode.window.activeTextEditor)
       panel.webview.html = getWebviewContent()
+
+      environment.handleOnSave(() => {
+        panel.webview.html = getWebviewContent()
+      })
 
       panel.webview.onDidReceiveMessage(
         handleDidReceiveMessage,
