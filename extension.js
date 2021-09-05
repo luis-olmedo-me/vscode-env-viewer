@@ -83,16 +83,35 @@ class EnvironmentHandler {
 
 const environment = new EnvironmentHandler()
 
+const envKeys = {
+  ENV_TEMPLATE: 'env-template',
+  ENV_MODE: 'env-mode',
+  ENV_VALUE: 'env-value',
+  ENV_OVERWRITTEN: 'env-overwritten',
+}
+
+const eventKeys = {
+  CHANGED_VALUE: 'env-viewer.changedValueEvent',
+  INTERPRETATE_ENVIRONMENT: 'env-viewer.interpretateEnv',
+}
+
+function handleDidReceiveMessage(message) {
+  switch (message.command) {
+    case eventKeys.CHANGED_VALUE:
+      environment.updateEnvironment(message.data)
+  }
+}
+
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
   let interpretateCommand = vscode.commands.registerCommand(
-    'env-viewer.interpretateEnv',
+    eventKeys.INTERPRETATE_ENVIRONMENT,
     function () {
       const panel = vscode.window.createWebviewPanel(
         'editor',
-        'Env Editor',
+        vscode.window.activeTextEditor.document.fileName,
         vscode.ViewColumn.Two,
         { enableScripts: true }
       )
@@ -100,22 +119,8 @@ function activate(context) {
       environment.setFile(vscode.window.activeTextEditor)
       panel.webview.html = getWebviewContent()
 
-      /* currentFile.edit((editBuilder) => {
-        const pos = new vscode.Position(0, 0)
-        const nxt = new vscode.Position(0, 1)
-
-        editBuilder.replace()
-        editBuilder.insert(pos, '\\')
-        editBuilder.delete(new vscode.Range(pos, nxt))
-      }) */
-
       panel.webview.onDidReceiveMessage(
-        (message) => {
-          switch (message.command) {
-            case 'env-viewer.changedValueEvent':
-              environment.updateEnvironment(message.data)
-          }
-        },
+        handleDidReceiveMessage,
         undefined,
         context.subscriptions
       )
@@ -133,13 +138,6 @@ function deactivate() {}
 module.exports = {
   activate,
   deactivate,
-}
-
-const envKeys = {
-  ENV_TEMPLATE: 'env-template',
-  ENV_MODE: 'env-mode',
-  ENV_VALUE: 'env-value',
-  ENV_OVERWRITTEN: 'env-overwritten',
 }
 
 function getValuesArray(lines = []) {
@@ -233,7 +231,7 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
     const scope = '${scope}'
 
     vscode.postMessage({
-      command: 'env-viewer.changedValueEvent',
+      command: '${eventKeys.CHANGED_VALUE}',
       data: { envType, envKey, scope, value }
     })
   }())
