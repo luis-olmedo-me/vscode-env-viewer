@@ -1,6 +1,6 @@
+const { basename } = require('path')
 const vscode = require('vscode')
 const { parse } = require('dotenv')
-
 class EnvironmentHandler {
   constructor() {
     this.file = null
@@ -109,7 +109,7 @@ function activate(context) {
     function () {
       const panel = vscode.window.createWebviewPanel(
         'editor',
-        vscode.window.activeTextEditor.document.fileName,
+        basename(vscode.window.activeTextEditor.document.fileName),
         vscode.ViewColumn.Two,
         { enableScripts: true }
       )
@@ -128,12 +128,8 @@ function activate(context) {
   context.subscriptions.push(interpretateCommand)
 }
 
-// this method is called when your extension is deactivated
-function deactivate() {}
-
 module.exports = {
   activate,
-  deactivate,
 }
 
 function getValuesArray(lines = []) {
@@ -244,7 +240,8 @@ function getWebviewContent() {
     const hasInputSelect = values.hasOwnProperty(envKey)
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
-    const commonProps = `onChange="${getEventFunction(eventData)}"`
+    const handleOnChange = getEventFunction(eventData)
+    const commonProps = `onChange="${handleOnChange}" class="input"`
 
     const input = !hasInputSelect
       ? `<input type="text" ${commonProps} value="${value}"/>`
@@ -268,11 +265,12 @@ function getWebviewContent() {
       .join('')
 
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
+    const handleOnChange = getEventFunction(eventData)
 
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><select onChange="${getEventFunction(eventData)}">${options}</select></td>
+				<td><select class="input" onChange="${handleOnChange}">${options}</select></td>
 		</tr>
 		`
   })
@@ -284,14 +282,16 @@ function getWebviewContent() {
 	<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${getStyles()}</style>
 			<title>Env Editor</title>
 	</head>
 	<body>
-			<h1>Env Editor</h1>
+			<h1 class="title">Environment Editor</h1>
 
-      <h2>Environment Modes</h2>
+      <h2 class="sub-title">Modes</h2>
+      <hr />
 
-      <table>
+      <table class="table">
           <tr>
               <th>MODE</th>
               <th>VALUE</th>
@@ -299,9 +299,10 @@ function getWebviewContent() {
           ${envModesHTML.join('')}
       </table>
 
-      <h2>Environment Values</h2>
+      <h2 class="sub-title">Values</h2>
+      <hr />
 			
-      <table>
+      <table class="table">
 					<tr>
 							<th>KEY</th>
 							<th>VALUE</th>
@@ -315,4 +316,31 @@ function getWebviewContent() {
 	</body>
 	</html>
 	`
+}
+
+function getStyles() {
+  return `
+    .title {
+      text-align: center;
+    }
+
+    .sub-title {
+      margin: 30px 0 10px;
+    }
+
+    .table,
+    .input {
+      width: 100%;
+    }
+
+    .table td {
+      width: 50vw;
+    }
+    
+    .input {
+      box-sizing: border-box;
+      border: none;
+      padding: 4px 5px;
+    }
+  `
 }
