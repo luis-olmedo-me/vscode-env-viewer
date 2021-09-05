@@ -17,7 +17,11 @@
     "commands": [
       {
         "command": "env-viewer.openPreviewToTheSide",
-        "title": "Interpretate Env"
+        "title": "Read Environment",
+        "icon": {
+          "dark": "./media/preview/magnifying-glass-dark.svg",
+          "light": "./media/preview/magnifying-glass-light.svg"
+        }
       }
     ],
     "languages": [
