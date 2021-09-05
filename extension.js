@@ -25,11 +25,11 @@ class EnvironmentHandler {
     const parsedLines = getValuesArray(this.lines)
 
     parsedLines[envKeys.ENV_MODE] = formatGroupLines(
-      parsedLines[envKeys.ENV_MODE]
+      parsedLines[envKeys.ENV_MODE] || []
     )
 
     parsedLines[envKeys.ENV_VALUE] = formatGroupLines(
-      parsedLines[envKeys.ENV_VALUE]
+      parsedLines[envKeys.ENV_VALUE] || []
     )
 
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
@@ -336,6 +336,39 @@ function getWebviewContent() {
 		`
   })
 
+  const hasModes = Boolean(Object.keys(modes).length)
+  const hasValues = Boolean(Object.keys(realValues).length)
+
+  const modesTable = hasModes
+    ? `
+    <h2 class="sub-title">Modes</h2>
+    <hr />
+
+    <table class="table">
+        <tr>
+            <th>MODE</th>
+            <th>VALUE</th>
+        </tr>
+        ${envModesHTML.join('')}
+    </table>
+  `
+    : ''
+
+  const valuesTable = hasValues
+    ? `
+    <h2 class="sub-title">Values</h2>
+    <hr />
+    
+    <table class="table">
+        <tr>
+            <th>VARIABLE</th>
+            <th>VALUE</th>
+        </tr>
+        ${envTemplateHTML.join('')}
+    </table>
+  `
+    : ''
+
   return `
 	<!DOCTYPE html>
 
@@ -349,27 +382,9 @@ function getWebviewContent() {
 	<body>
 			<h1 class="title">Environment Editor</h1>
 
-      <h2 class="sub-title">Modes</h2>
-      <hr />
+      ${modesTable}
 
-      <table class="table">
-          <tr>
-              <th>MODE</th>
-              <th>VALUE</th>
-          </tr>
-          ${envModesHTML.join('')}
-      </table>
-
-      <h2 class="sub-title">Values</h2>
-      <hr />
-			
-      <table class="table">
-					<tr>
-							<th>KEY</th>
-							<th>VALUE</th>
-					</tr>
-					${envTemplateHTML.join('')}
-			</table>
+      ${valuesTable}
 
       <script>
         const vscode = acquireVsCodeApi();
