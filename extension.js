@@ -234,6 +234,8 @@ function checkModeSelected(allValues, mode) {
   return Object.keys(mode).every((key) => mode[key] === allValues[key])
 }
 
+const defaultOption = `<option selected disabled >Custom</option>`
+
 function getWebviewContent() {
   const { template, modes, values, overwritten } = environment
   const realValues = { ...template, ...overwritten }
@@ -247,16 +249,28 @@ function getWebviewContent() {
     const handleOnChange = getEventFunction(eventData)
     const commonProps = `onChange="${handleOnChange}" class="input"`
 
+    let selectOptions = []
+
+    if (hasInputSelect) {
+      const hasSelectedOptions = values[envKey].some(
+        (option) => value === option
+      )
+
+      selectOptions = values[envKey].map((option) => {
+        const isSelected = value === option
+        const selection = isSelected ? 'selected' : ''
+
+        return `<option ${selection} value="${option}">${option}</option>`
+      })
+
+      selectOptions = !hasSelectedOptions
+        ? [...selectOptions, defaultOption]
+        : selectOptions
+    }
+
     const input = !hasInputSelect
       ? `<input type="text" ${commonProps} value="${value}"/>`
-      : `<select ${commonProps}>${values[envKey]
-          .map((option) => {
-            const isSelected = value === option
-            const selection = isSelected ? 'selected' : ''
-
-            return `<option ${selection} value="${option}">${option}</option>`
-          })
-          .join('')}</select>`
+      : `<select ${commonProps}>${selectOptions.join()}</select>`
 
     return `
 		<tr>
@@ -269,15 +283,18 @@ function getWebviewContent() {
   const envModesHTML = Object.keys(modes).map((envKey) => {
     const values = modes[envKey]
     const formattedValue = `${envKey}: `
-    const options = Object.keys(values)
-      .map((option) => {
-        const value = values[option]
-        const isSelected = checkModeSelected(realValues, value)
-        const selection = isSelected ? 'selected' : ''
 
-        return `<option ${selection} value="${option}">${option}</option>`
-      })
-      .join('')
+    const hasSelectedOptions = Object.keys(values).some((option) =>
+      checkModeSelected(realValues, values[option])
+    )
+    let options = Object.keys(values).map((option) => {
+      const value = values[option]
+      const isSelected = checkModeSelected(realValues, value)
+      const selection = isSelected ? 'selected' : ''
+
+      return `<option ${selection} value="${option}">${option}</option>`
+    })
+    options = !hasSelectedOptions ? [...options, defaultOption] : options
 
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
     const handleOnChange = getEventFunction(eventData)
@@ -285,7 +302,7 @@ function getWebviewContent() {
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td><select class="input" onChange="${handleOnChange}">${options}</select></td>
+				<td><select class="input" onChange="${handleOnChange}">${options.join()}</select></td>
 		</tr>
 		`
   })
