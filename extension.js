@@ -256,7 +256,9 @@ function checkModeSelected(allValues, mode) {
   return Object.keys(mode).every((key) => mode[key] === allValues[key])
 }
 
-const defaultOption = `<option selected disabled >Custom</option>`
+const getDefaultOption = (value = 'Custom') => {
+  return `<option selected disabled>${value}</option>`
+}
 
 function getWebviewContent() {
   const { template, modes, values, overwritten } = environment
@@ -287,7 +289,7 @@ function getWebviewContent() {
       })
 
       selectOptions = !hasSelectedOptions
-        ? [...selectOptions, defaultOption]
+        ? [...selectOptions, getDefaultOption(value)]
         : selectOptions
 
       customRow = !hasSelectedOptions ? `class="custom"` : ''
@@ -319,7 +321,7 @@ function getWebviewContent() {
 
       return `<option ${selection} value="${option}">${option}</option>`
     })
-    options = !hasSelectedOptions ? [...options, defaultOption] : options
+    options = !hasSelectedOptions ? [...options, getDefaultOption()] : options
 
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
     const handleOnChange = getEventFunction(eventData)
