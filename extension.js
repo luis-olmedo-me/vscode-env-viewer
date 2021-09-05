@@ -9,6 +9,7 @@ class EnvironmentHandler {
     this.modes = {}
     this.values = {}
     this.overwritten = {}
+    this.onSave = () => {}
   }
 
   setFile(file) {
@@ -24,11 +25,11 @@ class EnvironmentHandler {
     const parsedLines = getValuesArray(this.lines)
 
     parsedLines[envKeys.ENV_MODE] = formatGroupLines(
-      parsedLines[envKeys.ENV_MODE]
+      parsedLines[envKeys.ENV_MODE] || []
     )
 
     parsedLines[envKeys.ENV_VALUE] = formatGroupLines(
-      parsedLines[envKeys.ENV_VALUE]
+      parsedLines[envKeys.ENV_VALUE] || []
     )
 
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
@@ -73,9 +74,22 @@ class EnvironmentHandler {
         })
       })
       .then(() => {
-        this.file.document.save()
+        this.file.document.save().then(() => this.onSave())
         this.setFile(this.file)
       })
+  }
+
+  handleOnSave(onSave) {
+    this.onSave = onSave
+  }
+
+  handleOnExternalSave(file) {
+    const isSameFile = this.file.document.uri.path === file.uri.path
+
+    if (isSameFile) {
+      this.setFile(this.file)
+      this.onSave()
+    }
   }
 }
 
@@ -117,6 +131,10 @@ function activate(context) {
       environment.setFile(vscode.window.activeTextEditor)
       panel.webview.html = getWebviewContent()
 
+      environment.handleOnSave(() => {
+        panel.webview.html = getWebviewContent()
+      })
+
       panel.webview.onDidReceiveMessage(
         handleDidReceiveMessage,
         undefined,
@@ -125,7 +143,11 @@ function activate(context) {
     }
   )
 
-  context.subscriptions.push(interpretateCommand)
+  const didSaveTextEvent = vscode.workspace.onDidSaveTextDocument((file) =>
+    environment.handleOnExternalSave(file)
+  )
+
+  context.subscriptions.push(interpretateCommand, didSaveTextEvent)
 }
 
 module.exports = {
@@ -234,7 +256,9 @@ function checkModeSelected(allValues, mode) {
   return Object.keys(mode).every((key) => mode[key] === allValues[key])
 }
 
-const defaultOption = `<option selected disabled >Custom</option>`
+const getDefaultOption = (value = 'Custom') => {
+  return `<option selected disabled>${value}</option>`
+}
 
 function getWebviewContent() {
   const { template, modes, values, overwritten } = environment
@@ -265,7 +289,7 @@ function getWebviewContent() {
       })
 
       selectOptions = !hasSelectedOptions
-        ? [...selectOptions, defaultOption]
+        ? [...selectOptions, getDefaultOption(value)]
         : selectOptions
 
       customRow = !hasSelectedOptions ? `class="custom"` : ''
@@ -297,7 +321,7 @@ function getWebviewContent() {
 
       return `<option ${selection} value="${option}">${option}</option>`
     })
-    options = !hasSelectedOptions ? [...options, defaultOption] : options
+    options = !hasSelectedOptions ? [...options, getDefaultOption()] : options
 
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
     const handleOnChange = getEventFunction(eventData)
@@ -312,6 +336,39 @@ function getWebviewContent() {
 		`
   })
 
+  const hasModes = Boolean(Object.keys(modes).length)
+  const hasValues = Boolean(Object.keys(realValues).length)
+
+  const modesTable = hasModes
+    ? `
+    <h2 class="sub-title">Modes</h2>
+    <hr />
+
+    <table class="table">
+        <tr>
+            <th>MODE</th>
+            <th>VALUE</th>
+        </tr>
+        ${envModesHTML.join('')}
+    </table>
+  `
+    : ''
+
+  const valuesTable = hasValues
+    ? `
+    <h2 class="sub-title">Values</h2>
+    <hr />
+    
+    <table class="table">
+        <tr>
+            <th>VARIABLE</th>
+            <th>VALUE</th>
+        </tr>
+        ${envTemplateHTML.join('')}
+    </table>
+  `
+    : ''
+
   return `
 	<!DOCTYPE html>
 
@@ -325,27 +382,9 @@ function getWebviewContent() {
 	<body>
 			<h1 class="title">Environment Editor</h1>
 
-      <h2 class="sub-title">Modes</h2>
-      <hr />
+      ${modesTable}
 
-      <table class="table">
-          <tr>
-              <th>MODE</th>
-              <th>VALUE</th>
-          </tr>
-          ${envModesHTML.join('')}
-      </table>
-
-      <h2 class="sub-title">Values</h2>
-      <hr />
-			
-      <table class="table">
-					<tr>
-							<th>KEY</th>
-							<th>VALUE</th>
-					</tr>
-					${envTemplateHTML.join('')}
-			</table>
+      ${valuesTable}
 
       <script>
         const vscode = acquireVsCodeApi();
