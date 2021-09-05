@@ -230,6 +230,10 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   `
 }
 
+function checkModeSelected(allValues, mode) {
+  return Object.keys(mode).every((key) => mode[key] === allValues[key])
+}
+
 function getWebviewContent() {
   const { template, modes, values, overwritten } = environment
   const realValues = { ...template, ...overwritten }
@@ -261,7 +265,13 @@ function getWebviewContent() {
     const values = modes[envKey]
     const formattedValue = `${envKey}: `
     const options = Object.keys(values)
-      .map((option) => `<option value="${option}">${option}</option>`)
+      .map((option) => {
+        const value = values[option]
+        const isSelected = checkModeSelected(realValues, value)
+        const selection = isSelected ? 'selected' : ''
+
+        return `<option ${selection} value="${option}">${option}</option>`
+      })
       .join('')
 
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
