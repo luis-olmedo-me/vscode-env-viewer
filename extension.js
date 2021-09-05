@@ -1,6 +1,6 @@
+const path = require('path')
 const vscode = require('vscode')
 const { parse } = require('dotenv')
-
 class EnvironmentHandler {
   constructor() {
     this.file = null
@@ -280,12 +280,13 @@ function getWebviewContent() {
 	<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${getStyles()}</style>
 			<title>Env Editor</title>
 	</head>
 	<body>
 			<h1>Env Editor</h1>
 
-      <h2>Environment Modes</h2>
+      <h2>Modes</h2>
 
       <table>
           <tr>
@@ -295,7 +296,7 @@ function getWebviewContent() {
           ${envModesHTML.join('')}
       </table>
 
-      <h2>Environment Values</h2>
+      <h2>Values</h2>
 			
       <table>
 					<tr>
@@ -311,4 +312,12 @@ function getWebviewContent() {
 	</body>
 	</html>
 	`
+}
+
+function getStyles() {
+  return `
+    h1 {
+      color: red;
+    }
+  `
 }
