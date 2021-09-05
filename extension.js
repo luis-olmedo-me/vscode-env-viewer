@@ -250,6 +250,7 @@ function getWebviewContent() {
     const commonProps = `onChange="${handleOnChange}" class="input"`
 
     let selectOptions = []
+    let customRow = ''
 
     if (hasInputSelect) {
       const hasSelectedOptions = values[envKey].some(
@@ -266,6 +267,8 @@ function getWebviewContent() {
       selectOptions = !hasSelectedOptions
         ? [...selectOptions, defaultOption]
         : selectOptions
+
+      customRow = !hasSelectedOptions ? `class="custom"` : ''
     }
 
     const input = !hasInputSelect
@@ -275,7 +278,7 @@ function getWebviewContent() {
     return `
 		<tr>
 				<td>${formattedValue}</td>
-				<td>${input}</td>
+				<td ${customRow}>${input}</td>
 		</tr>
 		`
   })
