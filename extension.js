@@ -289,6 +289,7 @@ function getWebviewContent() {
 			<h1>Env Editor</h1>
 
       <h2 class="sub-title">Modes</h2>
+      <hr />
 
       <table class="table">
           <tr>
@@ -299,6 +300,7 @@ function getWebviewContent() {
       </table>
 
       <h2 class="sub-title">Values</h2>
+      <hr />
 			
       <table class="table">
 					<tr>
