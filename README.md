@@ -29,8 +29,6 @@ email: olmedoluis012@gmail.com
         <a href="https://marketplace.visualstudio.com/items?itemName=oGranny.md-template"><strong>Visual studio market place 📃</strong></a>
         <br />
         <br />
-        <a href="//github.com/Md-Template/ oGranny">View Demo</a>
-        •
         <a href="https://github.com/olmedoluis/vscode-env-viewer/issues">Report Bug</a>
         •
         <a href="https://github.com/olmedoluis/vscode-env-viewer/issues">Request Feature</a>
