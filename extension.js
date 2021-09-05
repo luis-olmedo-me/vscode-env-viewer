@@ -76,8 +76,6 @@ class EnvironmentHandler {
         this.file.document.save()
         this.setFile(this.file)
       })
-
-    console.log('updated overwritten:', this.overwritten)
   }
 }
 
