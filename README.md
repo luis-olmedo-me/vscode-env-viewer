@@ -20,7 +20,7 @@ email: olmedoluis012@gmail.com
 <br />
 <p align="center">
     <a href="https://github.com/olmedoluis/vscode-env-viewer">
-        <img src="https://github.com/olmedoluis/vscode-env-viewer/blob/main/media/logo/seahorse.png" alt="Logo" width="80" height="80">
+        <img src="https://raw.githubusercontent.com/olmedoluis/vscode-env-viewer/main/media/logo/seahorse.png" alt="Logo" width="80" height="80">
     </a>
 <h3 align="center"><a href="https://github.com/olmedoluis/vscode-env-viewer">ENV Viewer</a></h3>
     <p align="center">
