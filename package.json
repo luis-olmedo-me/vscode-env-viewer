@@ -1,9 +1,10 @@
 {
   "name": "env-viewer",
-  "displayName": "env-viewer",
-  "publisher": "LuisOlmedo",
-  "description": "Interactive view for env files",
-  "version": "0.0.1",
+  "displayName": "ENV Viewer",
+  "publisher": "LuisOledo",
+  "description": "Interactive view for environment variables files",
+  "repository": "https://github.com/olmedoluis/vscode-env-viewer",
+  "version": "0.0.11",
   "engines": {
     "vscode": "^1.59.0"
   },

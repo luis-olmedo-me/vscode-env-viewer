@@ -1,6 +1,8 @@
 const { basename } = require('path')
 const vscode = require('vscode')
 const { parse } = require('dotenv')
+const { platform } = require('os')
+
 class EnvironmentHandler {
   constructor() {
     this.file = null
@@ -14,9 +16,10 @@ class EnvironmentHandler {
 
   setFile(file) {
     const fileContent = file.document.getText()
+    const jumpLine = jumplines[platformName] || jumplines.default
 
     this.file = file
-    this.lines = fileContent.split('\r\n')
+    this.lines = fileContent.split(jumpLine)
 
     this.readEnvironment()
   }
@@ -95,11 +98,18 @@ class EnvironmentHandler {
 
 const environment = new EnvironmentHandler()
 
+const platformName = platform()
+
 const envKeys = {
   ENV_TEMPLATE: 'env-template',
   ENV_MODE: 'env-mode',
   ENV_VALUE: 'env-value',
   ENV_OVERWRITTEN: 'env-overwritten',
+}
+
+const jumplines = {
+  win32: '\r\n',
+  default: '\n',
 }
 
 const eventKeys = {
