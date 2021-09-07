@@ -409,9 +409,12 @@ function getWebviewContent() {
 
       ${valuesTable}
 
+      <hr/>
+      <footer><a href="https://github.com/olmedoluis/vscode-env-viewer">vscode-env-viewer</a></footer>
+
       <script>
         const vscode = acquireVsCodeApi();
-      </script>
+      </>
 	</body>
 	</html>
 	`
@@ -424,12 +427,16 @@ function getStyles() {
     }
 
     .sub-title {
-      margin: 30px 0 10px;
+      margin: 0 0 10px;
     }
 
     .table,
     .input {
       width: 100%;
+    }
+
+    .table {
+      margin-bottom: 30px;
     }
 
     .table td {
@@ -449,6 +456,15 @@ function getStyles() {
       box-sizing: border-box;
       border: none;
       padding: 4px 5px;
+    }
+
+    footer {
+      padding: 50px 0;
+    }
+
+    footer a {
+      display: block;
+      text-align: center;
     }
   `
 }
