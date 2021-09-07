@@ -10,7 +10,6 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
-    this.overwritten = {}
     this.onSave = () => {}
   }
 
@@ -36,39 +35,36 @@ class EnvironmentHandler {
     )
 
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
-    this.overwritten = parseEnvTemplate(parsedLines[envKeys.ENV_OVERWRITTEN])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
-
-    this.overwritten = { ...this.template, ...this.overwritten }
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
     switch (envType) {
       case envKeys.ENV_VALUE:
-        this.overwritten[envKey] = value
+        this.template[envKey] = value
         break
 
       case envKeys.ENV_MODE:
-        this.overwritten = { ...this.overwritten, ...this.modes[scope][value] }
+        this.template = { ...this.template, ...this.modes[scope][value] }
         break
     }
 
-    const overwrittenIndex =
-      this.lines.findIndex((line) => line.includes('// @env-overwritten')) + 1
+    const templateIndex =
+      this.lines.findIndex((line) => line.includes('// @env-template')) + 1
 
     this.file
       .edit((editBuilder) => {
-        Object.keys(this.overwritten).forEach((key, index) => {
-          const line = this.file.document.lineAt(overwrittenIndex + index).text
+        Object.keys(this.template).forEach((key, index) => {
+          const line = this.file.document.lineAt(templateIndex + index).text
 
-          const linePosition = new vscode.Position(overwrittenIndex + index, 0)
+          const linePosition = new vscode.Position(templateIndex + index, 0)
           const linePositionEnd = new vscode.Position(
-            overwrittenIndex + index,
+            templateIndex + index,
             line.length
           )
 
-          const value = this.overwritten[key]
+          const value = this.template[key]
 
           editBuilder.replace(
             new vscode.Range(linePosition, linePositionEnd),
@@ -104,7 +100,6 @@ const envKeys = {
   ENV_TEMPLATE: 'env-template',
   ENV_MODE: 'env-mode',
   ENV_VALUE: 'env-value',
-  ENV_OVERWRITTEN: 'env-overwritten',
 }
 
 const jumplines = {
@@ -271,11 +266,10 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getWebviewContent() {
-  const { template, modes, values, overwritten } = environment
-  const realValues = { ...template, ...overwritten }
+  const { template, modes, values } = environment
 
-  const envTemplateHTML = Object.keys(realValues).map((envKey) => {
-    const value = realValues[envKey]
+  const envTemplateHTML = Object.keys(template).map((envKey) => {
+    const value = template[envKey]
     const formattedValue = `${envKey}: `
     const hasInputSelect = values.hasOwnProperty(envKey)
 
@@ -322,11 +316,11 @@ function getWebviewContent() {
     const formattedValue = `${envKey}: `
 
     const hasSelectedOptions = Object.keys(values).some((option) =>
-      checkModeSelected(realValues, values[option])
+      checkModeSelected(template, values[option])
     )
     let options = Object.keys(values).map((option) => {
       const value = values[option]
-      const isSelected = checkModeSelected(realValues, value)
+      const isSelected = checkModeSelected(template, value)
       const selection = isSelected ? 'selected' : ''
 
       return `<option ${selection} value="${option}">${option}</option>`
@@ -347,7 +341,7 @@ function getWebviewContent() {
   })
 
   const hasModes = Boolean(Object.keys(modes).length)
-  const hasValues = Boolean(Object.keys(realValues).length)
+  const hasValues = Boolean(Object.keys(template).length)
 
   const modesTable = hasModes
     ? `
