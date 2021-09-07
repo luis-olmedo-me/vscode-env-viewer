@@ -445,17 +445,25 @@ function getStyles() {
 
     .table td:last-child {
       padding-left: 10px;
-      background: seagreen;
+      background: var(--vscode-editorGutter-addedBackground);
+      border-radius: 3px;
     }
 
     .table td.custom:last-child {
-      background: orange;
+      background: var(--vscode-editorGutter-modifiedBackground);
     }
     
     .input {
       box-sizing: border-box;
       border: none;
+      border-radius: 3px;
       padding: 4px 5px;
+      background-color: var(--vscode-input-background);
+      color: var(--vscode-input-foreground);
+    }
+
+    .input:focus{
+      outline: none;
     }
 
     footer {
