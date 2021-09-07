@@ -288,7 +288,7 @@ function getWebviewContent() {
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
     const value = template[envKey]
-    const formattedValue = `${envKey}: `
+    const formattedValue = `${envKey}:`
     const hasInputSelect = values.hasOwnProperty(envKey)
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
@@ -331,7 +331,7 @@ function getWebviewContent() {
 
   const envModesHTML = Object.keys(modes).map((envKey) => {
     const values = modes[envKey]
-    const formattedValue = `${envKey}: `
+    const formattedValue = `${envKey}:`
 
     const hasSelectedOptions = Object.keys(values).some((option) =>
       checkModeSelected(template, values[option])
@@ -440,6 +440,7 @@ function getStyles() {
 
     .table td {
       width: 50vw;
+      word-break: break-word;
     }
 
     .table td:last-child {
