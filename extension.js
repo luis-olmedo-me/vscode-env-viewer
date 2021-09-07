@@ -244,7 +244,6 @@ const parseEnvValues = (setOfLines) => {
     const values = valuesInLine.replace('//', '').split(',')
 
     const cuttedMetadata = metadata.match(/\/\/ @env-value:(\w+)/)
-    console.log({ cuttedMetadata })
 
     if (!cuttedMetadata) {
       vscode.window.showErrorMessage(
@@ -414,7 +413,7 @@ function getWebviewContent() {
 
       <script>
         const vscode = acquireVsCodeApi();
-      </>
+      </script>
 	</body>
 	</html>
 	`
