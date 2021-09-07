@@ -465,6 +465,11 @@ function getStyles() {
     .input:focus{
       outline: none;
     }
+    
+    .table tr:focus-within,
+    .table tr:focus-within input {
+      color: var(--vscode-menu-selectionForeground);
+    }
 
     footer {
       padding: 50px 0;
