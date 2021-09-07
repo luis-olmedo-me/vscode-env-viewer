@@ -421,6 +421,10 @@ function getWebviewContent() {
 
 function getStyles() {
   return `
+    body {
+      font-family: var(--vscode-editor-font-family);
+    }
+
     .title {
       text-align: center;
     }
