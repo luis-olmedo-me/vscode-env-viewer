@@ -218,6 +218,15 @@ const parseEnvModes = (setOfLines) => {
       .join('\r\n')
 
     const cuttedMetadata = metadata.match(/\/\/ @env-mode:(\w+)\.(\w+)/)
+
+    if (!cuttedMetadata) {
+      vscode.window.showErrorMessage(
+        `Error: Env tag wrong typed \"${metadata}\"`
+      )
+
+      return envModes
+    }
+
     const [scope, key] = cuttedMetadata.slice(1)
 
     const carriedScopes = envModes[scope] || {}
@@ -235,6 +244,16 @@ const parseEnvValues = (setOfLines) => {
     const values = valuesInLine.replace('//', '').split(',')
 
     const cuttedMetadata = metadata.match(/\/\/ @env-value:(\w+)/)
+    console.log({ cuttedMetadata })
+
+    if (!cuttedMetadata) {
+      vscode.window.showErrorMessage(
+        `Error: Env tag wrong typed \"${metadata}\"`
+      )
+
+      return envModes
+    }
+
     const [key] = cuttedMetadata.slice(1)
 
     return { ...envModes, [key]: values.map((value) => value.trim()) }
