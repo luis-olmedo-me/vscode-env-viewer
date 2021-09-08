@@ -4,12 +4,25 @@ const { parse } = require('dotenv')
 
 class EnvironmentHandler {
   constructor() {
+    this.panel = null
     this.file = null
     this.lines = []
     this.template = {}
     this.modes = {}
     this.values = {}
     this.onSave = () => {}
+  }
+
+  setPanel(panel, context) {
+    this.panel = panel
+
+    panel.webview.onDidReceiveMessage(
+      handleDidReceiveMessage,
+      undefined,
+      context.subscriptions
+    )
+
+    panel.onDidDispose(() => (this.panel = null), null, context.subscriptions)
   }
 
   setFile(file) {
@@ -72,13 +85,14 @@ class EnvironmentHandler {
         })
       })
       .then(() => {
-        this.file.document.save().then(() => this.onSave())
+        this.file.document.save().then(() => this.updatePanel())
+
         this.setFile(this.file)
       })
   }
 
-  handleOnSave(onSave) {
-    this.onSave = onSave
+  updatePanel() {
+    this.panel.webview.html = getWebviewContent()
   }
 
   handleOnExternalSave(file) {
@@ -122,26 +136,22 @@ function handleDidReceiveMessage(message) {
 function activate(context) {
   let interpretateCommand = vscode.commands.registerCommand(
     eventKeys.OPEN_PREVIEW,
-    function () {
-      const panel = vscode.window.createWebviewPanel(
-        'editor',
-        basename(vscode.window.activeTextEditor.document.fileName),
-        vscode.ViewColumn.Two,
-        { enableScripts: true }
-      )
+    function openPreview() {
+      if (!environment.panel) {
+        const panel = vscode.window.createWebviewPanel(
+          'editor',
+          basename(vscode.window.activeTextEditor.document.fileName),
+          vscode.ViewColumn.Two,
+          { enableScripts: true }
+        )
+
+        environment.setPanel(panel, context)
+        environment.updatePanel()
+      } else {
+        environment.panel.reveal(2)
+      }
 
       environment.setFile(vscode.window.activeTextEditor)
-      panel.webview.html = getWebviewContent()
-
-      environment.handleOnSave(() => {
-        panel.webview.html = getWebviewContent()
-      })
-
-      panel.webview.onDidReceiveMessage(
-        handleDidReceiveMessage,
-        undefined,
-        context.subscriptions
-      )
     }
   )
 
