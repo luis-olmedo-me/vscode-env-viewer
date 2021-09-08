@@ -421,6 +421,12 @@ function getWebviewContent() {
 
 function getStyles() {
   return `
+    body,
+    input,
+    select {
+      font-family: var(--vscode-editor-font-family);
+    }
+
     .title {
       text-align: center;
     }
@@ -460,6 +466,10 @@ function getStyles() {
       padding: 4px 5px;
       background-color: var(--vscode-input-background);
       color: var(--vscode-input-foreground);
+    }
+
+    select.input {
+      padding: 4px 1px;
     }
 
     .input:focus{
