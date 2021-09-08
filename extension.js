@@ -202,7 +202,7 @@ function formatGroupLines(lines) {
 
 const parseEnvTemplate = (lines) => {
   const values = lines.slice(1)
-  const valuesInLine = values.join('\r\n')
+  const valuesInLine = values.join(jumplines[process.platform])
 
   return parse(valuesInLine)
 }
@@ -212,7 +212,7 @@ const parseEnvModes = (setOfLines) => {
     const [metadata, ...values] = lines
     const valuesInLine = values
       .map((value) => value.replace('//', ''))
-      .join('\r\n')
+      .join(jumplines[process.platform])
 
     const cuttedMetadata = metadata.match(/\/\/ @env-mode:(\w+)\.(\w+)/)
 
