@@ -134,9 +134,11 @@ function handleDidReceiveMessage(message) {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let interpretateCommand = vscode.commands.registerCommand(
+  const interpretateCommand = vscode.commands.registerCommand(
     eventKeys.OPEN_PREVIEW,
     function openPreview() {
+      environment.setFile(vscode.window.activeTextEditor)
+
       if (!environment.panel) {
         const panel = vscode.window.createWebviewPanel(
           'editor',
@@ -150,8 +152,6 @@ function activate(context) {
       } else {
         environment.panel.reveal(2)
       }
-
-      environment.setFile(vscode.window.activeTextEditor)
     }
   )
 
