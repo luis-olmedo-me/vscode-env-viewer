@@ -244,7 +244,6 @@ const parseEnvValues = (setOfLines) => {
     const values = valuesInLine.replace('//', '').split(',')
 
     const cuttedMetadata = metadata.match(/\/\/ @env-value:(\w+)/)
-    console.log({ cuttedMetadata })
 
     if (!cuttedMetadata) {
       vscode.window.showErrorMessage(
@@ -289,7 +288,7 @@ function getWebviewContent() {
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
     const value = template[envKey]
-    const formattedValue = `${envKey}: `
+    const formattedValue = `${envKey}:`
     const hasInputSelect = values.hasOwnProperty(envKey)
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
@@ -332,7 +331,7 @@ function getWebviewContent() {
 
   const envModesHTML = Object.keys(modes).map((envKey) => {
     const values = modes[envKey]
-    const formattedValue = `${envKey}: `
+    const formattedValue = `${envKey}:`
 
     const hasSelectedOptions = Object.keys(values).some((option) =>
       checkModeSelected(template, values[option])
@@ -414,7 +413,7 @@ function getWebviewContent() {
 
       <script>
         const vscode = acquireVsCodeApi();
-      </>
+      </script>
 	</body>
 	</html>
 	`
@@ -441,21 +440,35 @@ function getStyles() {
 
     .table td {
       width: 50vw;
+      word-break: break-word;
     }
 
     .table td:last-child {
       padding-left: 10px;
-      background: seagreen;
+      background: var(--vscode-editorGutter-addedBackground);
+      border-radius: 3px;
     }
 
     .table td.custom:last-child {
-      background: orange;
+      background: var(--vscode-editorGutter-modifiedBackground);
     }
     
     .input {
       box-sizing: border-box;
       border: none;
+      border-radius: 3px;
       padding: 4px 5px;
+      background-color: var(--vscode-input-background);
+      color: var(--vscode-input-foreground);
+    }
+
+    .input:focus{
+      outline: none;
+    }
+    
+    .table tr:focus-within,
+    .table tr:focus-within input {
+      color: var(--vscode-menu-selectionForeground);
     }
 
     footer {
