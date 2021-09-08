@@ -73,7 +73,9 @@ Once you get it ready you'll just need to select your modes/values by dropdown s
 
 - Download the extension
 - Go to your .env file
-- Once you focus on your .env file, click on the magnifying glass icon at the top right menu
+- Put "// @env-template" at the top of the file
+- Remove empty spaces and other comments
+- Click on the magnifying glass icon at the top right menu
 - Enjoy of easily change environment values
 
 ### Prerequisites
@@ -89,10 +91,9 @@ download this extension directly from VS code [marketplace](https://marketplace.
 ## Usage
 
 - There is 4 @ tags that you can use:
-  - @env-template: This should be the default values you'll use.
+  - @env-template: This should be the values you'll change.
   - @env-values: This should be the values that an environment variable can take.
   - @env-modes: This is a set of environment variables.
-  - @env-overwritten: This are the applied values.
 
 Example:
 
@@ -102,26 +103,18 @@ ENV=test
 BASIC_URL="www.coso.coam"
 
 
-//---------------------------------------
 // @env-mode:ENVIRONMENT.test
 //    ENV=test
 //    BASIC_URL="www.url.com"
-//---------------------------------------
+
 // @env-mode:ENVIRONMENT.prod
 //    ENV=prod
 //    BASIC_URL="www.url2.com"
-//---------------------------------------
 
 
-//---------------------------------------
 // @env-value:ENV
 //    test,prod
-//---------------------------------------
 
-
-// @env-overwritten
-ENV=test
-BASIC_URL=www.url2.com
 ```
 
 <!-- ROADMAP -->
