@@ -457,12 +457,12 @@ function getStyles() {
 
     .table td:last-child {
       padding-left: 10px;
-      background: var(--vscode-editorGutter-addedBackground);
+      background: var(--vscode-gitDecoration-ignoredResourceForeground);
       border-radius: 3px;
     }
-
+    
     .table td.custom:last-child {
-      background: var(--vscode-editorGutter-modifiedBackground);
+      background: var(--vscode-gitDecoration-modifiedResourceForeground);
     }
     
     .input {
