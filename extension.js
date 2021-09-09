@@ -1,10 +1,10 @@
 const { basename } = require('path')
 const vscode = require('vscode')
 const { parse } = require('dotenv')
-const { platform } = require('os')
 
 class EnvironmentHandler {
   constructor() {
+    this.panel = null
     this.file = null
     this.lines = []
     this.template = {}
@@ -13,9 +13,21 @@ class EnvironmentHandler {
     this.onSave = () => {}
   }
 
+  setPanel(panel, context) {
+    this.panel = panel
+
+    panel.webview.onDidReceiveMessage(
+      handleDidReceiveMessage,
+      undefined,
+      context.subscriptions
+    )
+
+    panel.onDidDispose(() => (this.panel = null), null, context.subscriptions)
+  }
+
   setFile(file) {
     const fileContent = file.document.getText()
-    const jumpLine = jumplines[platformName] || jumplines.default
+    const jumpLine = jumplines[process.platform] || jumplines.default
 
     this.file = file
     this.lines = fileContent.split(jumpLine)
@@ -73,13 +85,14 @@ class EnvironmentHandler {
         })
       })
       .then(() => {
-        this.file.document.save().then(() => this.onSave())
+        this.file.document.save().then(() => this.updatePanel())
+
         this.setFile(this.file)
       })
   }
 
-  handleOnSave(onSave) {
-    this.onSave = onSave
+  updatePanel() {
+    this.panel.webview.html = getWebviewContent()
   }
 
   handleOnExternalSave(file) {
@@ -93,8 +106,6 @@ class EnvironmentHandler {
 }
 
 const environment = new EnvironmentHandler()
-
-const platformName = platform()
 
 const envKeys = {
   ENV_TEMPLATE: 'env-template',
@@ -123,28 +134,24 @@ function handleDidReceiveMessage(message) {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let interpretateCommand = vscode.commands.registerCommand(
+  const interpretateCommand = vscode.commands.registerCommand(
     eventKeys.OPEN_PREVIEW,
-    function () {
-      const panel = vscode.window.createWebviewPanel(
-        'editor',
-        basename(vscode.window.activeTextEditor.document.fileName),
-        vscode.ViewColumn.Two,
-        { enableScripts: true }
-      )
-
+    function openPreview() {
       environment.setFile(vscode.window.activeTextEditor)
-      panel.webview.html = getWebviewContent()
 
-      environment.handleOnSave(() => {
-        panel.webview.html = getWebviewContent()
-      })
+      if (!environment.panel) {
+        const panel = vscode.window.createWebviewPanel(
+          'editor',
+          basename(vscode.window.activeTextEditor.document.fileName),
+          vscode.ViewColumn.Two,
+          { enableScripts: true }
+        )
 
-      panel.webview.onDidReceiveMessage(
-        handleDidReceiveMessage,
-        undefined,
-        context.subscriptions
-      )
+        environment.setPanel(panel, context)
+        environment.updatePanel()
+      } else {
+        environment.panel.reveal(2)
+      }
     }
   )
 
@@ -205,7 +212,7 @@ function formatGroupLines(lines) {
 
 const parseEnvTemplate = (lines) => {
   const values = lines.slice(1)
-  const valuesInLine = values.join('\r\n')
+  const valuesInLine = values.join(jumplines[process.platform])
 
   return parse(valuesInLine)
 }
@@ -215,7 +222,7 @@ const parseEnvModes = (setOfLines) => {
     const [metadata, ...values] = lines
     const valuesInLine = values
       .map((value) => value.replace('//', ''))
-      .join('\r\n')
+      .join(jumplines[process.platform])
 
     const cuttedMetadata = metadata.match(/\/\/ @env-mode:(\w+)\.(\w+)/)
 
