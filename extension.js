@@ -10,6 +10,7 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
+    this.recentChanges = {}
   }
 
   setPanel(panel, context) {
@@ -54,10 +55,12 @@ class EnvironmentHandler {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
+        this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
+        this.recentChanges = this.modes[scope][value]
         break
     }
 
@@ -300,6 +303,7 @@ function getWebviewContent() {
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
     const commonProps = `onChange="${handleOnChange}" class="input"`
+    const hasBeenChanged = environment.recentChanges.hasOwnProperty(envKey)
 
     let selectOptions = []
     let customRow = ''
@@ -322,6 +326,8 @@ function getWebviewContent() {
 
       customRow = !hasSelectedOptions ? `class="custom"` : ''
     }
+
+    customRow = hasBeenChanged ? 'class="changed"' : customRow
 
     const input = !hasInputSelect
       ? `<input type="text" ${commonProps} value="${value}"/>`
@@ -463,6 +469,10 @@ function getStyles() {
     
     .table td.custom:last-child {
       background: var(--vscode-gitDecoration-modifiedResourceForeground);
+    }
+
+    .table td.changed:last-child {
+      background: var(--vscode-gitDecoration-addedResourceForeground);
     }
     
     .input {
