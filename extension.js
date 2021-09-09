@@ -10,7 +10,6 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
-    this.onSave = () => {}
   }
 
   setPanel(panel, context) {
@@ -100,7 +99,7 @@ class EnvironmentHandler {
 
     if (isSameFile) {
       this.setFile(this.file)
-      this.onSave()
+      this.updatePanel()
     }
   }
 }
