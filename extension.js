@@ -428,13 +428,9 @@ function getWebviewContent() {
 
 function getStyles() {
   return `
-<<<<<<< HEAD
-    body {
-=======
     body,
     input,
     select {
->>>>>>> ba697651ebf367fd81d753a73fcc2a53989b07bc
       font-family: var(--vscode-editor-font-family);
     }
 
