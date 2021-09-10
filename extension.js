@@ -392,7 +392,8 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Values</h2>
     <hr />
-    
+    <input class="input" type="text"/>
+
     <table class="table">
         <tr>
             <th>VARIABLE</th>
