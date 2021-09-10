@@ -52,45 +52,21 @@ class EnvironmentHandler {
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
 
-    this.filteredTemplate = Object.keys(this.template).reduce(
-      (filtered, key) => {
-        const value = this.template[key]
-        const shouldKeep = key
-          .toLowerCase()
-          .includes(this.filterKey.toLowerCase())
-
-        return shouldKeep ? { ...filtered, [key]: value } : filtered
-      },
-      {}
-    )
+    this.filter()
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
-
-        if (value.includes(this.filterKey)) {
-          this.filteredTemplate[envKey] = value
-        }
+        this.filter()
 
         this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
-
-        this.filteredTemplate = Object.keys(this.template).reduce(
-          (filtered, key) => {
-            const value = this.template[key]
-            const shouldKeep = key
-              .toLowerCase()
-              .includes(this.filterKey.toLowerCase())
-
-            return shouldKeep ? { ...filtered, [key]: value } : filtered
-          },
-          {}
-        )
+        this.filter()
 
         this.recentChanges = this.modes[scope][value]
         break
@@ -138,24 +114,30 @@ class EnvironmentHandler {
     }
   }
 
-  filterByKey({ value: filterKey = this.filterKey, shouldUpdatePanel = true }) {
+  filter() {
+    this.filteredTemplate = Object.keys(this.template).reduce(
+      (filtered, key) => {
+        const value = this.template[key]
+        const shouldKeep = key
+          .toLowerCase()
+          .includes(this.filterKey.toLowerCase())
+
+        return shouldKeep ? { ...filtered, [key]: value } : filtered
+      },
+      {}
+    )
+  }
+
+  filterByKey({ value: filterKey = this.filterKey }) {
     if (!filterKey) {
-      this.filteredTemplate = this.template
       this.filterKey = ''
+      this.filteredTemplate = this.template
     } else {
       this.filterKey = filterKey
-      this.filteredTemplate = Object.keys(this.template).reduce(
-        (filtered, key) => {
-          const value = this.template[key]
-          const shouldKeep = key.toLowerCase().includes(filterKey.toLowerCase())
-
-          return shouldKeep ? { ...filtered, [key]: value } : filtered
-        },
-        {}
-      )
+      this.filter()
     }
 
-    if (shouldUpdatePanel && this.panel) this.updatePanel()
+    if (this.panel) this.updatePanel()
   }
 }
 
