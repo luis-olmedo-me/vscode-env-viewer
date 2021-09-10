@@ -377,6 +377,7 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Modes</h2>
     <hr />
+    <input class="input search" type="text" placeholder="Search by mode"/>
 
     <table class="table">
         <tr>
