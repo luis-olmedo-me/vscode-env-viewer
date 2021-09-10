@@ -10,7 +10,7 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
-    this.onSave = () => {}
+    this.recentChanges = {}
   }
 
   setPanel(panel, context) {
@@ -55,10 +55,12 @@ class EnvironmentHandler {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
+        this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
+        this.recentChanges = this.modes[scope][value]
         break
     }
 
@@ -100,7 +102,7 @@ class EnvironmentHandler {
 
     if (isSameFile) {
       this.setFile(this.file)
-      this.onSave()
+      this.updatePanel()
     }
   }
 }
@@ -301,6 +303,7 @@ function getWebviewContent() {
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
     const commonProps = `onChange="${handleOnChange}" class="input"`
+    const hasBeenChanged = environment.recentChanges.hasOwnProperty(envKey)
 
     let selectOptions = []
     let customRow = ''
@@ -323,6 +326,8 @@ function getWebviewContent() {
 
       customRow = !hasSelectedOptions ? `class="custom"` : ''
     }
+
+    customRow = hasBeenChanged ? 'class="changed"' : customRow
 
     const input = !hasInputSelect
       ? `<input type="text" ${commonProps} value="${value}"/>`
@@ -458,12 +463,20 @@ function getStyles() {
 
     .table td:last-child {
       padding-left: 10px;
-      background: var(--vscode-editorGutter-addedBackground);
+      background: var(--vscode-gitDecoration-ignoredResourceForeground);
       border-radius: 3px;
     }
-
+    
     .table td.custom:last-child {
-      background: var(--vscode-editorGutter-modifiedBackground);
+      background: var(--vscode-gitDecoration-modifiedResourceForeground);
+    }
+
+    .table td.changed:last-child {
+      background: var(--vscode-gitDecoration-addedResourceForeground);
+    }
+
+    .table td:last-child:focus-within {
+      background: var(--vscode-gitDecoration-renamedResourceForeground);
     }
     
     .input {
