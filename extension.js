@@ -122,6 +122,7 @@ const jumplines = {
 
 const eventKeys = {
   CHANGED_VALUE: 'env-viewer.changedValueEvent',
+  FILTER_BY_KEY: 'env-viewer.filterByKey',
   OPEN_PREVIEW: 'env-viewer.openPreviewToTheSide',
 }
 
@@ -129,6 +130,10 @@ function handleDidReceiveMessage(message) {
   switch (message.command) {
     case eventKeys.CHANGED_VALUE:
       environment.updateEnvironment(message.data)
+      break
+    case eventKeys.FILTER_BY_KEY:
+      console.log(message.data)
+      break
   }
 }
 
@@ -284,6 +289,19 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   `
 }
 
+const getFilterEventFunction = (filterKey) => {
+  return `
+  (function() {
+    const value = event.target.value
+
+    vscode.postMessage({
+      command: '${filterKey}',
+      data: { value }
+    })
+  }())
+  `
+}
+
 function checkModeSelected(allValues, mode) {
   return Object.keys(mode).every((key) => mode[key] === allValues[key])
 }
@@ -377,7 +395,12 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Modes</h2>
     <hr />
-    <input class="input search" type="text" placeholder="Search by mode"/>
+    <input
+      class="input search"
+      type="text"
+      placeholder="Search by mode"
+      onchange="${getFilterEventFunction(eventKeys.FILTER_BY_KEY)}"
+    />
 
     <table class="table">
         <tr>
@@ -393,7 +416,12 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Values</h2>
     <hr />
-    <input class="input search" type="text" placeholder="Search by key"/>
+    <input
+      class="input search"
+      type="text"
+      placeholder="Search by key"
+      onchange="${getFilterEventFunction(eventKeys.FILTER_BY_KEY)}"
+    />
 
     <table class="table">
         <tr>
