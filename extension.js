@@ -474,6 +474,10 @@ function getStyles() {
     .table td.changed:last-child {
       background: var(--vscode-gitDecoration-addedResourceForeground);
     }
+
+    .table td:last-child:focus-within {
+      background: var(--vscode-gitDecoration-renamedResourceForeground);
+    }
     
     .input {
       box-sizing: border-box;
