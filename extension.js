@@ -7,11 +7,12 @@ class EnvironmentHandler {
     this.panel = null
     this.file = null
     this.lines = []
+    this.filteredTemplate = {}
     this.template = {}
-    this.temporalTemplate = {}
     this.modes = {}
     this.values = {}
     this.recentChanges = {}
+    this.filterKey = ''
   }
 
   setPanel(panel, context) {
@@ -51,18 +52,46 @@ class EnvironmentHandler {
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
 
-    this.temporalTemplate = {}
+    this.filteredTemplate = Object.keys(this.template).reduce(
+      (filtered, key) => {
+        const value = this.template[key]
+        const shouldKeep = key
+          .toLowerCase()
+          .includes(this.filterKey.toLowerCase())
+
+        return shouldKeep ? { ...filtered, [key]: value } : filtered
+      },
+      {}
+    )
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
+
+        if (value.includes(this.filterKey)) {
+          this.filteredTemplate[envKey] = value
+        }
+
         this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
+
+        this.filteredTemplate = Object.keys(this.template).reduce(
+          (filtered, key) => {
+            const value = this.template[key]
+            const shouldKeep = key
+              .toLowerCase()
+              .includes(this.filterKey.toLowerCase())
+
+            return shouldKeep ? { ...filtered, [key]: value } : filtered
+          },
+          {}
+        )
+
         this.recentChanges = this.modes[scope][value]
         break
     }
@@ -109,15 +138,24 @@ class EnvironmentHandler {
     }
   }
 
-  filterByKey({ value: filterKey }) {
-    this.template = Object.keys(this.template).reduce((filtered, key) => {
-      const value = this.template[key]
-      const shouldKeep = key.toLowerCase().includes(filterKey)
+  filterByKey({ value: filterKey = this.filterKey, shouldUpdatePanel = true }) {
+    if (!filterKey) {
+      this.filteredTemplate = this.template
+      this.filterKey = ''
+    } else {
+      this.filterKey = filterKey
+      this.filteredTemplate = Object.keys(this.template).reduce(
+        (filtered, key) => {
+          const value = this.template[key]
+          const shouldKeep = key.toLowerCase().includes(filterKey.toLowerCase())
 
-      return shouldKeep ? { ...filtered, [key]: value } : filtered
-    }, {})
+          return shouldKeep ? { ...filtered, [key]: value } : filtered
+        },
+        {}
+      )
+    }
 
-    this.updatePanel()
+    if (shouldUpdatePanel && this.panel) this.updatePanel()
   }
 }
 
@@ -325,10 +363,10 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getWebviewContent() {
-  const { template, modes, values } = environment
+  const { filteredTemplate, modes, values, filterKey, template } = environment
 
-  const envTemplateHTML = Object.keys(template).map((envKey) => {
-    const value = template[envKey]
+  const envTemplateHTML = Object.keys(filteredTemplate).map((envKey) => {
+    const value = filteredTemplate[envKey]
     const formattedValue = `${envKey}:`
     const hasInputSelect = values.hasOwnProperty(envKey)
 
@@ -403,7 +441,9 @@ function getWebviewContent() {
   })
 
   const hasModes = Boolean(Object.keys(modes).length)
-  const hasValues = Boolean(Object.keys(template).length)
+  const hasValues =
+    Boolean(Object.keys(filteredTemplate).length) ||
+    Boolean(Object.keys(template).length)
 
   const modesTable = hasModes
     ? `
@@ -435,6 +475,7 @@ function getWebviewContent() {
       type="text"
       placeholder="Search by key"
       onchange="${getFilterEventFunction(eventKeys.FILTER_BY_KEY)}"
+      value="${filterKey}"
     />
 
     <table class="table">
