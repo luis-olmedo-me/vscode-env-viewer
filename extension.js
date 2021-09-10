@@ -8,6 +8,7 @@ class EnvironmentHandler {
     this.file = null
     this.lines = []
     this.template = {}
+    this.temporalTemplate = {}
     this.modes = {}
     this.values = {}
     this.recentChanges = {}
@@ -49,6 +50,8 @@ class EnvironmentHandler {
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
+
+    this.temporalTemplate = {}
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
@@ -105,6 +108,17 @@ class EnvironmentHandler {
       this.updatePanel()
     }
   }
+
+  filterByKey({ value: filterKey }) {
+    this.template = Object.keys(this.template).reduce((filtered, key) => {
+      const value = this.template[key]
+      const shouldKeep = key.toLowerCase().includes(filterKey)
+
+      return shouldKeep ? { ...filtered, [key]: value } : filtered
+    }, {})
+
+    this.updatePanel()
+  }
 }
 
 const environment = new EnvironmentHandler()
@@ -132,7 +146,7 @@ function handleDidReceiveMessage(message) {
       environment.updateEnvironment(message.data)
       break
     case eventKeys.FILTER_BY_KEY:
-      console.log(message.data)
+      environment.filterByKey(message.data)
       break
   }
 }
