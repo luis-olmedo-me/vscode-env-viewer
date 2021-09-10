@@ -392,7 +392,7 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Values</h2>
     <hr />
-    <input class="input" type="text"/>
+    <input class="input search" type="text" placeholder="Search by key"/>
 
     <table class="table">
         <tr>
@@ -491,6 +491,10 @@ function getStyles() {
 
     select.input {
       padding: 4px 1px;
+    }
+
+    .input.search {
+      margin 3px 0;
     }
 
     .input:focus{
