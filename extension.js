@@ -11,6 +11,9 @@ class EnvironmentHandler {
     this.modes = {}
     this.values = {}
     this.recentChanges = {}
+    this.modeRecentChanged = ''
+    this.filterKey = ''
+    this.filterMode = ''
   }
 
   setPanel(panel, context) {
@@ -55,11 +58,13 @@ class EnvironmentHandler {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
+        this.modeRecentChanged = ''
         this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
+        this.modeRecentChanged = scope
         this.recentChanges = this.modes[scope][value]
         break
     }
@@ -105,6 +110,16 @@ class EnvironmentHandler {
       this.updatePanel()
     }
   }
+
+  filterByKey({ value: filterKey }) {
+    this.filterKey = filterKey
+    this.updatePanel()
+  }
+
+  filterByMode({ value: filterMode }) {
+    this.filterMode = filterMode
+    this.updatePanel()
+  }
 }
 
 const environment = new EnvironmentHandler()
@@ -122,6 +137,8 @@ const jumplines = {
 
 const eventKeys = {
   CHANGED_VALUE: 'env-viewer.changedValueEvent',
+  FILTER_BY_KEY: 'env-viewer.filterByKey',
+  FILTER_BY_MODE: 'env-viewer.filterByMode',
   OPEN_PREVIEW: 'env-viewer.openPreviewToTheSide',
 }
 
@@ -129,6 +146,13 @@ function handleDidReceiveMessage(message) {
   switch (message.command) {
     case eventKeys.CHANGED_VALUE:
       environment.updateEnvironment(message.data)
+      break
+    case eventKeys.FILTER_BY_KEY:
+      environment.filterByKey(message.data)
+      break
+    case eventKeys.FILTER_BY_MODE:
+      environment.filterByMode(message.data)
+      break
   }
 }
 
@@ -284,6 +308,19 @@ const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   `
 }
 
+const getFilterEventFunction = (filterKey) => {
+  return `
+  (function() {
+    const value = event.target.value
+
+    vscode.postMessage({
+      command: '${filterKey}',
+      data: { value }
+    })
+  }())
+  `
+}
+
 function checkModeSelected(allValues, mode) {
   return Object.keys(mode).every((key) => mode[key] === allValues[key])
 }
@@ -293,9 +330,16 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getWebviewContent() {
-  const { template, modes, values } = environment
+  const { modes, values, filterKey, filterMode, template, modeRecentChanged } =
+    environment
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
+    const shouldKeepEnv = filterKey
+      ? envKey.toLowerCase().includes(filterKey.toLowerCase())
+      : true
+
+    if (!shouldKeepEnv) return ''
+
     const value = template[envKey]
     const formattedValue = `${envKey}:`
     const hasInputSelect = values.hasOwnProperty(envKey)
@@ -342,6 +386,12 @@ function getWebviewContent() {
   })
 
   const envModesHTML = Object.keys(modes).map((envKey) => {
+    const shouldKeepEnv = filterMode
+      ? envKey.toLowerCase().includes(filterMode.toLowerCase())
+      : true
+
+    if (!shouldKeepEnv) return ''
+
     const values = modes[envKey]
     const formattedValue = `${envKey}:`
 
@@ -360,7 +410,8 @@ function getWebviewContent() {
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
     const handleOnChange = getEventFunction(eventData)
 
-    const customRow = !hasSelectedOptions ? `class="custom"` : ''
+    let customRow = !hasSelectedOptions ? 'class="custom"' : ''
+    customRow = modeRecentChanged === envKey ? 'class="changed"' : customRow
 
     return `
 		<tr>
@@ -377,6 +428,12 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Modes</h2>
     <hr />
+    <input
+      class="input search"
+      type="text"
+      placeholder="Search by mode"
+      onchange="${getFilterEventFunction(eventKeys.FILTER_BY_MODE)}"
+    />
 
     <table class="table">
         <tr>
@@ -392,7 +449,14 @@ function getWebviewContent() {
     ? `
     <h2 class="sub-title">Values</h2>
     <hr />
-    
+    <input
+      class="input search"
+      type="text"
+      placeholder="Search by key"
+      onchange="${getFilterEventFunction(eventKeys.FILTER_BY_KEY)}"
+      value="${filterKey}"
+    />
+
     <table class="table">
         <tr>
             <th>VARIABLE</th>
@@ -490,6 +554,10 @@ function getStyles() {
 
     select.input {
       padding: 4px 1px;
+    }
+
+    .input.search {
+      margin: 3px 0;
     }
 
     .input:focus{
