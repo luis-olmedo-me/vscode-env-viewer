@@ -13,6 +13,7 @@ class EnvironmentHandler {
     this.values = {}
     this.recentChanges = {}
     this.filterKey = ''
+    this.filterMode = ''
   }
 
   setPanel(panel, context) {
@@ -110,6 +111,11 @@ class EnvironmentHandler {
 
   filterByKey({ value: filterKey }) {
     this.filterKey = filterKey
+    this.updatePanel()
+  }
+
+  filterByMode({ value: filterMode }) {
+    this.filterMode = filterMode
     this.updatePanel()
   }
 }
@@ -322,16 +328,14 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getWebviewContent() {
-  const { modes, values, filterKey, template } = environment
+  const { modes, values, filterKey, filterMode, template } = environment
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
     const shouldKeepEnv = filterKey
       ? envKey.toLowerCase().includes(filterKey.toLowerCase())
       : true
 
-    if (!shouldKeepEnv) {
-      return ''
-    }
+    if (!shouldKeepEnv) return ''
 
     const value = template[envKey]
     const formattedValue = `${envKey}:`
@@ -379,6 +383,12 @@ function getWebviewContent() {
   })
 
   const envModesHTML = Object.keys(modes).map((envKey) => {
+    const shouldKeepEnv = filterMode
+      ? envKey.toLowerCase().includes(filterMode.toLowerCase())
+      : true
+
+    if (!shouldKeepEnv) return ''
+
     const values = modes[envKey]
     const formattedValue = `${envKey}:`
 
@@ -420,7 +430,7 @@ function getWebviewContent() {
       class="input search"
       type="text"
       placeholder="Search by mode"
-      onchange="${getFilterEventFunction(eventKeys.FILTER_BY_KEY)}"
+      onchange="${getFilterEventFunction(eventKeys.FILTER_BY_MODE)}"
     />
 
     <table class="table">
