@@ -422,9 +422,7 @@ function getWebviewContent() {
   })
 
   const hasModes = Boolean(Object.keys(modes).length)
-  const hasValues =
-    Boolean(Object.keys(template).length) ||
-    Boolean(Object.keys(template).length)
+  const hasValues = Boolean(Object.keys(template).length)
 
   const modesTable = hasModes
     ? `
