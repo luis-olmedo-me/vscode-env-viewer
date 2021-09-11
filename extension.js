@@ -12,6 +12,7 @@ class EnvironmentHandler {
     this.modes = {}
     this.values = {}
     this.recentChanges = {}
+    this.modeRecentChanged = ''
     this.filterKey = ''
     this.filterMode = ''
   }
@@ -58,11 +59,13 @@ class EnvironmentHandler {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
+        this.modeRecentChanged = ''
         this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
+        this.modeRecentChanged = scope
         this.recentChanges = this.modes[scope][value]
         break
     }
@@ -328,7 +331,8 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getWebviewContent() {
-  const { modes, values, filterKey, filterMode, template } = environment
+  const { modes, values, filterKey, filterMode, template, modeRecentChanged } =
+    environment
 
   const envTemplateHTML = Object.keys(template).map((envKey) => {
     const shouldKeepEnv = filterKey
@@ -407,7 +411,8 @@ function getWebviewContent() {
     const eventData = { envType: envKeys.ENV_MODE, scope: envKey }
     const handleOnChange = getEventFunction(eventData)
 
-    const customRow = !hasSelectedOptions ? `class="custom"` : ''
+    let customRow = !hasSelectedOptions ? 'class="custom"' : ''
+    customRow = modeRecentChanged === envKey ? 'class="changed"' : customRow
 
     return `
 		<tr>
