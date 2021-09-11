@@ -249,7 +249,7 @@ const parseEnvModes = (setOfLines) => {
     const [metadata, ...values] = lines
     const valuesInLine = values
       .map((value) => value.replace('//', ''))
-      .join(jumplines[process.platform])
+      .join(jumpline)
 
     const cuttedMetadata = metadata.match(/\/\/ @env-mode:(\w+)\.(\w+)/)
 
