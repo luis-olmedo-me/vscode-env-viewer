@@ -110,9 +110,6 @@ class EnvironmentHandler {
       this.setFile(this.file)
       this.updatePanel()
     }
-
-    this.recentChanges = {}
-    this.modeRecentChanged = ''
   }
 
   filterByKey({ value: filterKey }) {
@@ -563,7 +560,7 @@ function getStyles() {
     }
 
     .input.search {
-      margin 3px 0;
+      margin: 3px 0;
     }
 
     .input:focus{
