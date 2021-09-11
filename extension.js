@@ -30,10 +30,9 @@ class EnvironmentHandler {
 
   setFile(file) {
     const fileContent = file.document.getText()
-    const jumpLine = jumplines[process.platform] || jumplines.default
 
     this.file = file
-    this.lines = fileContent.split(jumpLine)
+    this.lines = fileContent.split(jumpline)
 
     this.readEnvironment()
   }
@@ -134,6 +133,8 @@ const jumplines = {
   win32: '\r\n',
   default: '\n',
 }
+
+const jumpline = jumplines[process.platform] || jumplines.default
 
 const eventKeys = {
   CHANGED_VALUE: 'env-viewer.changedValueEvent',
@@ -238,7 +239,7 @@ function formatGroupLines(lines) {
 
 const parseEnvTemplate = (lines) => {
   const values = lines.slice(1)
-  const valuesInLine = values.join(jumplines[process.platform])
+  const valuesInLine = values.join(jumpline)
 
   return parse(valuesInLine)
 }

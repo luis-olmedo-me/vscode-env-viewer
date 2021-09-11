@@ -29,10 +29,9 @@
     ],
     "languages": [
       {
-        "id": "dotenv",
+        "id": "env",
         "aliases": [
           "Environment Variables",
-          "dotenv",
           "env"
         ],
         "extensions": [
@@ -73,7 +72,7 @@
       "editor/title": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == dotenv",
+          "when": "editorLangId == env || editorLangId == ini",
           "group": "navigation"
         }
       ]
