@@ -1,20 +1,6 @@
-<!--
-repo name: ENV Variable
-description: An interpreter for environment variable files.
-github name:  olmedoluis
-link: https://github.com/olmedoluis/vscode-env-viewer
-email: olmedoluis012@gmail.com
--->
-
-<!-- PROJECT SHIELDS -->
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-<!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
+[![version]][items]
+[![install]][items]
+[![downloads]][items]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -24,9 +10,9 @@ email: olmedoluis012@gmail.com
     </a>
 <h3 align="center"><a href="https://github.com/olmedoluis/vscode-env-viewer">ENV Viewer</a></h3>
     <p align="center">
-        An awesome readme Template extension to quickstart your project
+        Interactive view for environment variables files
         <br />
-        <a href="https://marketplace.visualstudio.com/items?itemName=oGranny.md-template"><strong>Visual studio market place 📃</strong></a>
+        <a href="https://marketplace.visualstudio.com/items?itemName=oGranny.md-template"><strong>Visual studio market place</strong></a>
         <br />
         <br />
         <a href="https://github.com/olmedoluis/vscode-env-viewer/issues">Report Bug</a>
@@ -35,131 +21,125 @@ email: olmedoluis012@gmail.com
     </p>
 </p>
 
-<!-- TABLE OF CONTENTS -->
-
-## Table of Contents
-
-- [Table of Contents](#table-of-contents)
-- [About The Project](#about-the-project)
-  - [Built With](#built-with)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-
-<!-- ABOUT THE PROJECT -->
-
 ## About The Project
 
-Couldn't find a better way to organize environment variables than create an extension by my self. Even separating the variables with comments or also explaining with comments too, it never got better.
+---
 
-With this extension may take some time to set up the proper values but it lets you see what you're applying or if some values got overwritten explicitly and that was what I was looking for.
+This extension allows you to change environment variables with a handy interface. You can easily search for variables, change their values by hand or leave default values to select.
 
-Once you get it ready you'll just need to select your modes/values by dropdown selection and that's it. Nothing about searching for those variables that are never close to each other.
+I couldn't find a better way to organize environment variables. Even separating the variables with comments or also explaining with comments too, it never got better.
 
-### Built With
-
-- [yo]()
-- [vsce]()
-- [dotenv]()
-
-<!-- GETTING STARTED -->
-
-## Getting Started
-
-- Download the extension
-- Go to your .env file
-- Put "// @env-template" at the top of the file
-- Remove empty spaces and other comments
-- Click on the magnifying glass icon at the top right menu
-- Enjoy of easily change environment values
-
-### Prerequisites
-
-- [VS Code](https://code.visualstudio.com)
-
-### Installation
-
-download this extension directly from VS code [marketplace](https://marketplace.visualstudio.com/vscode)
-
-<!-- USAGE EXAMPLES -->
+With this extension you will not have to rembember what values should be changed or what values that variable can take in order to get the desired result.
 
 ## Usage
 
-- There is 4 @ tags that you can use:
-  - @env-template: This should be the values you'll change.
-  - @env-values: This should be the values that an environment variable can take.
-  - @env-modes: This is a set of environment variables.
+---
 
-Example:
+Go to your .env file and click on the magnifying glass icon at the top right menu.
 
-```dotenv
+> 🛈 **You must use at least env-template tag** to let the extension know where values will be overwritten.
+
+&nbsp;
+
+There is three tags that can be used while writting out .env file:
+
+### **Env Template Tag**:
+
+---
+
+This tag is meant to mark the values that will take effect over our application.
+
+<p align="center">
+  <img src="media/readme/env-template.gif" style="box-shadow: 0 5px 15px #11111170"/>
+</p>
+
+> 🛈 **They should be written without any comments or spaces between** since all those values can be overwritten by the user.
+
+&nbsp;
+
+#### **Code shown in the example:**
+
+```ini
 // @env-template
 ENV=test
-BASIC_URL="www.coso.coam"
+SITE_URL=www.test.com
+ENV_VIEWER_REPO=test
+KEY=secret_key_123
+```
 
+&nbsp;
 
-// @env-mode:ENVIRONMENT.test
-//    ENV=test
-//    BASIC_URL="www.url.com"
+### **Env Value Tag**:
 
-// @env-mode:ENVIRONMENT.prod
-//    ENV=prod
-//    BASIC_URL="www.url2.com"
+---
 
+This tag is meant to mark the values that a environment variable can take.
+
+<p align="center">
+  <img src="media/readme/env-values.gif" style="box-shadow: 0 5px 15px #11111170"/>
+</p>
+
+> 🛈 **They should be written without any comments or spaces between**.
+
+&nbsp;
+
+#### **Code shown in the example:**
+
+```ini
+// @env-template
+ENV=test
+SITE_URL=www.test.com
+ENV_VIEWER_REPO=test
+KEY=secret_key_123
+
+// @env-value:ENV
+//    test,prod
+```
+
+&nbsp;
+
+### **Env Mode Tag**:
+
+---
+
+This tag is meant to mark a set of values that you can choose when should apply.
+
+<p align="center">
+  <img src="media/readme/env-modes.gif" style="box-shadow: 0 5px 15px #11111170"/>
+</p>
+
+&nbsp;
+
+#### **Code shown in the example:**
+
+```ini
+// @env-template
+ENV=prod
+SITE_URL=www.prod.com
+ENV_VIEWER_REPO=prod
+KEY=secret_key_123
 
 // @env-value:ENV
 //    test,prod
 
+// @env-mode:ENVIRONMENT.test
+//    ENV=test
+//    SITE_URL=www.test.com
+//    ENV_VIEWER_REPO=test
+
+// @env-mode:ENVIRONMENT.prod
+//    ENV=prod
+//    SITE_URL=www.prod.com
+//    ENV_VIEWER_REPO=prod
 ```
 
-<!-- ROADMAP -->
-
-## Roadmap
-
-See the [open issues](https://github.com/olmedoluis/vscode-env-viewer/issues) for a list of proposed features (and known issues).
-
-<!-- CONTRIBUTING -->
-
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<!-- LICENSE -->
+&nbsp;
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT © Luis Olmedo
 
-<!-- CONTACT -->
-
-## Contact
-
-Luis Olmedo - olmedoluis012@gmail.com
-
-Project Link: [https://github.com/olmedoluis/vscode-env-viewer](https://github.com/olmedoluis/vscode-env-viewer)
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
-[contributors-shield]: https://img.shields.io/github/contributors/olmedoluis/vscode-env-viewer.svg?style=flat-square
-[contributors-url]: https://github.com/olmedoluis/vscode-env-viewer/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/olmedoluis/vscode-env-viewer.svg?style=flat-square
-[forks-url]: https://github.com/olmedoluis/vscode-env-viewer/network/members
-[stars-shield]: https://img.shields.io/github/stars/olmedoluis/vscode-env-viewer.svg?style=flat-square
-[stars-url]: https://github.com/olmedoluis/vscode-env-viewer/stargazers
-[issues-shield]: https://img.shields.io/github/issues/olmedoluis/vscode-env-viewer.svg?style=flat-square
-[issues-url]: https://github.com/olmedoluis/vscode-env-viewer/issues
-[license-shield]: https://img.shields.io/github/license/olmedoluis/vscode-env-viewer.svg?style=flat-square
-[license-url]: https://github.com/olmedoluis/vscode-env-viewer/blob/master/LICENSE.txt
-[product-screenshot]: images/screenshot.png
+[items]: https://marketplace.visualstudio.com/items?itemName=luisolmedo.env-viewer
+[downloads]: https://vsmarketplacebadge.apphb.com/downloads-short/luisolmedo.env-viewer.svg
+[install]: https://vsmarketplacebadge.apphb.com/installs-short/luisolmedo.env-viewer.svg
+[version]: https://vsmarketplacebadge.apphb.com/version/luisolmedo.env-viewer.svg
