@@ -51,23 +51,17 @@ class EnvironmentHandler {
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
-
-    this.filter()
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
     switch (envType) {
       case envKeys.ENV_VALUE:
         this.template[envKey] = value
-        this.filter()
-
         this.recentChanges = { [envKey]: value }
         break
 
       case envKeys.ENV_MODE:
         this.template = { ...this.template, ...this.modes[scope][value] }
-        this.filter()
-
         this.recentChanges = this.modes[scope][value]
         break
     }
@@ -114,30 +108,9 @@ class EnvironmentHandler {
     }
   }
 
-  filter() {
-    this.filteredTemplate = Object.keys(this.template).reduce(
-      (filtered, key) => {
-        const value = this.template[key]
-        const shouldKeep = key
-          .toLowerCase()
-          .includes(this.filterKey.toLowerCase())
-
-        return shouldKeep ? { ...filtered, [key]: value } : filtered
-      },
-      {}
-    )
-  }
-
-  filterByKey({ value: filterKey = this.filterKey }) {
-    if (!filterKey) {
-      this.filterKey = ''
-      this.filteredTemplate = this.template
-    } else {
-      this.filterKey = filterKey
-      this.filter()
-    }
-
-    if (this.panel) this.updatePanel()
+  filterByKey({ value: filterKey }) {
+    this.filterKey = filterKey
+    this.updatePanel()
   }
 }
 
@@ -157,6 +130,7 @@ const jumplines = {
 const eventKeys = {
   CHANGED_VALUE: 'env-viewer.changedValueEvent',
   FILTER_BY_KEY: 'env-viewer.filterByKey',
+  FILTER_BY_MODE: 'env-viewer.filterByMode',
   OPEN_PREVIEW: 'env-viewer.openPreviewToTheSide',
 }
 
@@ -167,6 +141,9 @@ function handleDidReceiveMessage(message) {
       break
     case eventKeys.FILTER_BY_KEY:
       environment.filterByKey(message.data)
+      break
+    case eventKeys.FILTER_BY_MODE:
+      environment.filterByMode(message.data)
       break
   }
 }
@@ -345,10 +322,18 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getWebviewContent() {
-  const { filteredTemplate, modes, values, filterKey, template } = environment
+  const { modes, values, filterKey, template } = environment
 
-  const envTemplateHTML = Object.keys(filteredTemplate).map((envKey) => {
-    const value = filteredTemplate[envKey]
+  const envTemplateHTML = Object.keys(template).map((envKey) => {
+    const shouldKeepEnv = filterKey
+      ? envKey.toLowerCase().includes(filterKey.toLowerCase())
+      : true
+
+    if (!shouldKeepEnv) {
+      return ''
+    }
+
+    const value = template[envKey]
     const formattedValue = `${envKey}:`
     const hasInputSelect = values.hasOwnProperty(envKey)
 
@@ -424,7 +409,7 @@ function getWebviewContent() {
 
   const hasModes = Boolean(Object.keys(modes).length)
   const hasValues =
-    Boolean(Object.keys(filteredTemplate).length) ||
+    Boolean(Object.keys(template).length) ||
     Boolean(Object.keys(template).length)
 
   const modesTable = hasModes
