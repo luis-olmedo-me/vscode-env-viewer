@@ -110,6 +110,9 @@ class EnvironmentHandler {
       this.setFile(this.file)
       this.updatePanel()
     }
+
+    this.recentChanges = {}
+    this.modeRecentChanged = ''
   }
 
   filterByKey({ value: filterKey }) {
