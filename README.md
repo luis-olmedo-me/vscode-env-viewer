@@ -5,9 +5,6 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-    <a href="https://github.com/olmedoluis/vscode-env-viewer">
-        <img src="media/logo/seahorse.png" alt="Logo" width="80" height="80">
-    </a>
 <h3 align="center"><a href="https://github.com/olmedoluis/vscode-env-viewer">ENV Viewer</a></h3>
     <p align="center">
         Interactive view for environment variables files
@@ -137,9 +134,24 @@ KEY=secret_key_123
 
 ## License
 
+---
+
 MIT © Luis Olmedo
+
+Distributed under the License. See [LICENSE][license] for more information.
+
+&nbsp;
+
+## Contact
+
+---
+
+Luis Olmedo - olmedoluis012@gmail.com
+
+Project Link: [https://github.com/olmedoluis/vscode-env-viewer](https://github.com/olmedoluis/vscode-env-viewer)
 
 [items]: https://marketplace.visualstudio.com/items?itemName=luisolmedo.env-viewer
 [downloads]: https://vsmarketplacebadge.apphb.com/downloads-short/luisolmedo.env-viewer.svg
 [install]: https://vsmarketplacebadge.apphb.com/installs-short/luisolmedo.env-viewer.svg
 [version]: https://vsmarketplacebadge.apphb.com/version/luisolmedo.env-viewer.svg
+[license]: https://github.com/olmedoluis/vscode-env-viewer/blob/main/LICENSE
