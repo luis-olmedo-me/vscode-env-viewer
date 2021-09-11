@@ -7,7 +7,6 @@ class EnvironmentHandler {
     this.panel = null
     this.file = null
     this.lines = []
-    this.filteredTemplate = {}
     this.template = {}
     this.modes = {}
     this.values = {}
