@@ -277,7 +277,9 @@ const parseEnvValues = (setOfLines) => {
     const [metadata, valuesInLine] = lines
     const values = valuesInLine.replace('//', '').split(',')
 
-    const cuttedMetadata = metadata.match(/\/\/ @env-value:(\w+)/)
+    const cuttedMetadata =
+      metadata.match(/\/\/ @env-value:(\w+)\((.+)\)/) ||
+      metadata.match(/\/\/ @env-value:(\w+)/)
 
     if (!cuttedMetadata) {
       vscode.window.showErrorMessage(
@@ -287,7 +289,7 @@ const parseEnvValues = (setOfLines) => {
       return envModes
     }
 
-    const [key] = cuttedMetadata.slice(1)
+    const [key, type] = cuttedMetadata.slice(1)
 
     return { ...envModes, [key]: values.map((value) => value.trim()) }
   }, {})
