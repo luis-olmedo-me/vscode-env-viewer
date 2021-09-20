@@ -18,9 +18,9 @@
     </p>
 </p>
 
-## About The Project
+&nbsp;
 
----
+## About The Project
 
 This extension allows you to change environment variables with a handy interface. You can easily search for variables, change their values by hand or leave default values to select.
 
@@ -28,13 +28,13 @@ I couldn't find a better way to organize environment variables. Even separating 
 
 With this extension you will not have to rembember what values should be changed or what values that variable can take in order to get the desired result.
 
-## Usage
+&nbsp;
 
----
+## Usage
 
 Go to your .env file and click on the magnifying glass icon at the top right menu.
 
-> 🛈 **You must use at least env-template tag** to let the extension know where values will be overwritten.
+> :information_source: **You must use at least env-template tag** to let the extension know where values will be overwritten.
 
 &nbsp;
 
@@ -50,7 +50,7 @@ This tag is meant to mark the values that will take effect over our application.
   <img src="media/readme/env-template.gif" style="box-shadow: 0 5px 15px #11111170"/>
 </p>
 
-> 🛈 **They should be written without any comments or spaces between** since all those values can be overwritten by the user.
+> :information_source: **They should be written without any comments or spaces between** since all those values can be overwritten by the user.
 
 &nbsp;
 
@@ -76,7 +76,7 @@ This tag is meant to mark the values that a environment variable can take.
   <img src="media/readme/env-values.gif" style="box-shadow: 0 5px 15px #11111170"/>
 </p>
 
-> 🛈 **They should be written without any comments or spaces between**.
+> :information_source: **They should be written without any comments or spaces between**.
 
 &nbsp;
 
@@ -134,8 +134,6 @@ KEY=secret_key_123
 
 ## License
 
----
-
 MIT © Luis Olmedo
 
 Distributed under the License. See [LICENSE][license] for more information.
@@ -143,8 +141,6 @@ Distributed under the License. See [LICENSE][license] for more information.
 &nbsp;
 
 ## Contact
-
----
 
 Luis Olmedo - olmedoluis012@gmail.com
 
