@@ -9,7 +9,7 @@
     <p align="center">
         Interactive view for environment variables files
         <br />
-        <a href="https://marketplace.visualstudio.com/items?itemName=oGranny.md-template"><strong>Visual studio market place</strong></a>
+        <a href="https://marketplace.visualstudio.com/items?itemName=LuisOlmedo.env-viewer"><strong>Visual studio market place</strong></a>
         <br />
         <br />
         <a href="https://github.com/olmedoluis/vscode-env-viewer/issues">Report Bug</a>
