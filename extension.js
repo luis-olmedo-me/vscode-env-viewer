@@ -291,7 +291,13 @@ const parseEnvValues = (setOfLines) => {
 
     const [key, type] = cuttedMetadata.slice(1)
 
-    return { ...envModes, [key]: values.map((value) => value.trim()) }
+    return {
+      ...envModes,
+      [key]: {
+        values: values.map((value) => value.trim()),
+        type: type || 'select',
+      },
+    }
   }, {})
 }
 
@@ -332,6 +338,16 @@ const getDefaultOption = (value = 'Custom') => {
   return `<option selected disabled>${value}</option>`
 }
 
+function getInput({ commonProps, selectOptions, type }) {
+  switch (type) {
+    case 'select':
+      return `<select ${commonProps}>${selectOptions.join()}</select>`
+
+    default:
+      break
+  }
+}
+
 function getWebviewContent() {
   const { modes, values, filterKey, filterMode, template, modeRecentChanged } =
     environment
@@ -345,7 +361,7 @@ function getWebviewContent() {
 
     const value = template[envKey]
     const formattedValue = `${envKey}:`
-    const hasInputSelect = values.hasOwnProperty(envKey)
+    const hasCustomInput = values.hasOwnProperty(envKey)
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
@@ -355,12 +371,12 @@ function getWebviewContent() {
     let selectOptions = []
     let customRow = ''
 
-    if (hasInputSelect) {
-      const hasSelectedOptions = values[envKey].some(
+    if (hasCustomInput) {
+      const hasSelectedOptions = values[envKey].values.some(
         (option) => value === option
       )
 
-      selectOptions = values[envKey].map((option) => {
+      selectOptions = values[envKey].values.map((option) => {
         const isSelected = value === option
         const selection = isSelected ? 'selected' : ''
 
@@ -376,9 +392,9 @@ function getWebviewContent() {
 
     customRow = hasBeenChanged ? 'class="changed"' : customRow
 
-    const input = !hasInputSelect
+    const input = !hasCustomInput
       ? `<input type="text" ${commonProps} value="${value}"/>`
-      : `<select ${commonProps}>${selectOptions.join()}</select>`
+      : getInput({ type: values[envKey].type, commonProps, selectOptions })
 
     return `
 		<tr>
