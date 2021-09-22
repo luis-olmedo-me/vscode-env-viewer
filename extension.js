@@ -285,7 +285,9 @@ const parseEnvValues = (setOfLines) => {
     const values = valuesInLine.replace('//', '').split(',')
 
     const cuttedMetadata =
+      metadata.match(/\/\/ @env-value:\((.+)\)\((.+)\)/) ||
       metadata.match(/\/\/ @env-value:(\w+)\((.+)\)/) ||
+      metadata.match(/\/\/ @env-value:\((.+)\)/) ||
       metadata.match(/\/\/ @env-value:(\w+)/)
 
     if (!cuttedMetadata) {
@@ -296,14 +298,21 @@ const parseEnvValues = (setOfLines) => {
       return envModes
     }
 
-    const [key, type] = cuttedMetadata.slice(1)
+    const [keys, type] = cuttedMetadata.slice(1)
+    const parsedValues = values.map((value) => value.trim())
+    const parsedKeys = keys.split(',').reduce((result, key) => {
+      return {
+        ...result,
+        [key]: {
+          values: parsedValues,
+          type: type || inputs.SELECT,
+        },
+      }
+    }, {})
 
     return {
       ...envModes,
-      [key]: {
-        values: values.map((value) => value.trim()),
-        type: type || inputs.SELECT,
-      },
+      ...parsedKeys,
     }
   }, {})
 }
