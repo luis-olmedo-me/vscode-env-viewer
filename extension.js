@@ -386,7 +386,7 @@ function getWebviewContent() {
 
     const value = template[envKey]
     const formattedValue = `${envKey}:`
-    const hasCustomInput = values.hasOwnProperty(envKey)
+    const customInput = values[envKey]
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
@@ -396,12 +396,12 @@ function getWebviewContent() {
     let selectOptions = []
     let customRow = ''
 
-    if (hasCustomInput && values[envKey].type === inputs.SELECT) {
-      const hasSelectedOptions = values[envKey].values.some(
+    if (customInput && customInput.type === inputs.SELECT) {
+      const hasSelectedOptions = customInput.values.some(
         (option) => value === option
       )
 
-      selectOptions = values[envKey].values.map((option) => {
+      selectOptions = customInput.values.map((option) => {
         const isSelected = value === option
         const selection = isSelected ? 'selected' : ''
 
@@ -417,11 +417,11 @@ function getWebviewContent() {
 
     customRow = hasBeenChanged ? 'class="changed"' : customRow
 
-    const input = !hasCustomInput
+    const input = !customInput
       ? `<input type="text" ${commonProps} value="${value}"/>`
       : getInput({
-          type: values[envKey].type,
-          values: values[envKey].values,
+          type: customInput.type,
+          values: customInput.values,
           commonProps,
           selectOptions,
           value,
