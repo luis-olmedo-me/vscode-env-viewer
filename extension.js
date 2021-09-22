@@ -338,10 +338,25 @@ const getDefaultOption = (value = 'Custom') => {
   return `<option selected disabled>${value}</option>`
 }
 
-function getInput({ commonProps, selectOptions, type }) {
+function getInput({ commonProps, selectOptions, type, value, values }) {
   switch (type) {
     case 'select':
       return `<select ${commonProps}>${selectOptions.join()}</select>`
+
+    case 'boolean':
+      const [firstOption, lastOption] = values
+
+      const isSelected = firstOption === value
+      const nextValue = isSelected ? lastOption : firstOption
+      const selection = isSelected ? 'checked' : ''
+
+      return `
+      <div class="checkbox-wrapper">
+        <input class="checkbox shown" type="checkbox" ${selection}/>
+        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}"/>
+        <input class="input" onClick="" value=${value}/>
+      </div>
+      `
 
     default:
       break
@@ -573,6 +588,23 @@ function getStyles() {
 
     select.input {
       padding: 4px 1px;
+    }
+    
+    .checkbox-wrapper {
+      position: relative;
+    }
+    .checkbox-wrapper .checkbox {
+      position: absolute;
+      width: 100%;
+      margin: 0;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .checkbox-wrapper .checkbox.shown {
+      opacity: 1;
+      width: 23.2px;
+      right: 0;
     }
 
     .input.search {
