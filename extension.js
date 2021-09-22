@@ -143,6 +143,11 @@ const eventKeys = {
   OPEN_PREVIEW: 'env-viewer.openPreviewToTheSide',
 }
 
+const inputs = {
+  SELECT: 'select',
+  BOOLEAN: 'boolean',
+}
+
 function handleDidReceiveMessage(message) {
   switch (message.command) {
     case eventKeys.CHANGED_VALUE:
@@ -295,7 +300,7 @@ const parseEnvValues = (setOfLines) => {
       ...envModes,
       [key]: {
         values: values.map((value) => value.trim()),
-        type: type || 'select',
+        type: type || inputs.SELECT,
       },
     }
   }, {})
@@ -340,10 +345,10 @@ const getDefaultOption = (value = 'Custom') => {
 
 function getInput({ commonProps, selectOptions, type, value, values }) {
   switch (type) {
-    case 'select':
+    case inputs.SELECT:
       return `<select ${commonProps}>${selectOptions.join()}</select>`
 
-    case 'boolean':
+    case inputs.BOOLEAN:
       const [firstOption, lastOption] = values
 
       const isSelected = firstOption === value
