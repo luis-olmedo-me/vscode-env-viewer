@@ -409,7 +409,13 @@ function getWebviewContent() {
 
     const input = !hasCustomInput
       ? `<input type="text" ${commonProps} value="${value}"/>`
-      : getInput({ type: values[envKey].type, commonProps, selectOptions })
+      : getInput({
+          type: values[envKey].type,
+          values: values[envKey].values,
+          commonProps,
+          selectOptions,
+          value,
+        })
 
     return `
 		<tr>
