@@ -385,7 +385,6 @@ function getWebviewContent() {
     if (!shouldKeepEnv) return ''
 
     const value = template[envKey]
-    const formattedValue = `${envKey}:`
     const customInput = values[envKey]
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
@@ -429,7 +428,7 @@ function getWebviewContent() {
 
     return `
 		<tr>
-				<td>${formattedValue}</td>
+				<td>${envKey}:</td>
 				<td ${customRow}>${input}</td>
 		</tr>
 		`
@@ -443,7 +442,6 @@ function getWebviewContent() {
     if (!shouldKeepEnv) return ''
 
     const values = modes[envKey]
-    const formattedValue = `${envKey}:`
 
     const hasSelectedOptions = Object.keys(values).some((option) =>
       checkModeSelected(template, values[option])
@@ -465,7 +463,7 @@ function getWebviewContent() {
 
     return `
 		<tr>
-				<td>${formattedValue}</td>
+				<td>${envKey}:</td>
 				<td ${customRow} ><select class="input" onChange="${handleOnChange}">${options.join()}</select></td>
 		</tr>
 		`
