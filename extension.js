@@ -91,9 +91,10 @@ class EnvironmentHandler {
         })
       })
       .then(() => {
-        this.file.document.save().then(() => this.updatePanel())
-
-        this.setFile(this.file)
+        this.file.document.save().then(() => {
+          this.setFile(this.file)
+          this.updatePanel()
+        })
       })
   }
 
@@ -141,6 +142,12 @@ const eventKeys = {
   FILTER_BY_KEY: 'env-viewer.filterByKey',
   FILTER_BY_MODE: 'env-viewer.filterByMode',
   OPEN_PREVIEW: 'env-viewer.openPreviewToTheSide',
+}
+
+const inputs = {
+  SELECT: 'select',
+  BOOLEAN: 'boolean',
+  NUMBER: 'number',
 }
 
 function handleDidReceiveMessage(message) {
@@ -277,7 +284,9 @@ const parseEnvValues = (setOfLines) => {
     const [metadata, valuesInLine] = lines
     const values = valuesInLine.replace('//', '').split(',')
 
-    const cuttedMetadata = metadata.match(/\/\/ @env-value:(\w+)/)
+    const cuttedMetadata =
+      metadata.match(/\/\/ @env-value:(\w+)\((.+)\)/) ||
+      metadata.match(/\/\/ @env-value:(\w+)/)
 
     if (!cuttedMetadata) {
       vscode.window.showErrorMessage(
@@ -287,9 +296,15 @@ const parseEnvValues = (setOfLines) => {
       return envModes
     }
 
-    const [key] = cuttedMetadata.slice(1)
+    const [key, type] = cuttedMetadata.slice(1)
 
-    return { ...envModes, [key]: values.map((value) => value.trim()) }
+    return {
+      ...envModes,
+      [key]: {
+        values: values.map((value) => value.trim()),
+        type: type || inputs.SELECT,
+      },
+    }
   }, {})
 }
 
@@ -330,6 +345,34 @@ const getDefaultOption = (value = 'Custom') => {
   return `<option selected disabled>${value}</option>`
 }
 
+function getInput({ commonProps, selectOptions, type, value, values }) {
+  switch (type) {
+    case inputs.SELECT:
+      return `<select ${commonProps}>${selectOptions.join()}</select>`
+
+    case inputs.BOOLEAN:
+      const [firstOption, lastOption] = values
+
+      const isSelected = firstOption === value
+      const nextValue = isSelected ? lastOption : firstOption
+      const selection = isSelected ? 'checked' : ''
+
+      return `
+      <div class="checkbox-wrapper">
+        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}"/>
+        <input class="input" value="${value}"/>
+        <span class="check ${selection}"></span>
+      </div>
+      `
+
+    case inputs.NUMBER:
+      return `<input type="number" ${commonProps} value="${Number(value)}"/>`
+
+    default:
+      break
+  }
+}
+
 function getWebviewContent() {
   const { modes, values, filterKey, filterMode, template, modeRecentChanged } =
     environment
@@ -342,8 +385,7 @@ function getWebviewContent() {
     if (!shouldKeepEnv) return ''
 
     const value = template[envKey]
-    const formattedValue = `${envKey}:`
-    const hasInputSelect = values.hasOwnProperty(envKey)
+    const customInput = values[envKey]
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
@@ -353,12 +395,12 @@ function getWebviewContent() {
     let selectOptions = []
     let customRow = ''
 
-    if (hasInputSelect) {
-      const hasSelectedOptions = values[envKey].some(
+    if (customInput && customInput.type === inputs.SELECT) {
+      const hasSelectedOptions = customInput.values.some(
         (option) => value === option
       )
 
-      selectOptions = values[envKey].map((option) => {
+      selectOptions = customInput.values.map((option) => {
         const isSelected = value === option
         const selection = isSelected ? 'selected' : ''
 
@@ -374,13 +416,19 @@ function getWebviewContent() {
 
     customRow = hasBeenChanged ? 'class="changed"' : customRow
 
-    const input = !hasInputSelect
+    const input = !customInput
       ? `<input type="text" ${commonProps} value="${value}"/>`
-      : `<select ${commonProps}>${selectOptions.join()}</select>`
+      : getInput({
+          type: customInput.type,
+          values: customInput.values,
+          commonProps,
+          selectOptions,
+          value,
+        })
 
     return `
 		<tr>
-				<td>${formattedValue}</td>
+				<td>${envKey}:</td>
 				<td ${customRow}>${input}</td>
 		</tr>
 		`
@@ -394,7 +442,6 @@ function getWebviewContent() {
     if (!shouldKeepEnv) return ''
 
     const values = modes[envKey]
-    const formattedValue = `${envKey}:`
 
     const hasSelectedOptions = Object.keys(values).some((option) =>
       checkModeSelected(template, values[option])
@@ -416,7 +463,7 @@ function getWebviewContent() {
 
     return `
 		<tr>
-				<td>${formattedValue}</td>
+				<td>${envKey}:</td>
 				<td ${customRow} ><select class="input" onChange="${handleOnChange}">${options.join()}</select></td>
 		</tr>
 		`
@@ -555,6 +602,32 @@ function getStyles() {
 
     select.input {
       padding: 4px 1px;
+    }
+    
+    .checkbox-wrapper {
+      position: relative;
+    }
+    .checkbox-wrapper .checkbox {
+      position: absolute;
+      width: 100%;
+      margin: 0;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 1;
+    }
+    .check {
+      position: absolute;
+      width: 11px;
+      height: 50%;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 3px;
+      background-color: var(--vscode-checkbox-foreground);
+    }
+    .check.checked {
+      background-color: var(--vscode-editorOverviewRuler-infoForeground);
     }
 
     .input.search {
