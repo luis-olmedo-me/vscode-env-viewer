@@ -91,9 +91,10 @@ class EnvironmentHandler {
         })
       })
       .then(() => {
-        this.file.document.save().then(() => this.updatePanel())
-
-        this.setFile(this.file)
+        this.file.document.save().then(() => {
+          this.setFile(this.file)
+          this.updatePanel()
+        })
       })
   }
 
@@ -146,6 +147,7 @@ const eventKeys = {
 const inputs = {
   SELECT: 'select',
   BOOLEAN: 'boolean',
+  NUMBER: 'number',
 }
 
 function handleDidReceiveMessage(message) {
@@ -363,6 +365,9 @@ function getInput({ commonProps, selectOptions, type, value, values }) {
       </div>
       `
 
+    case inputs.NUMBER:
+      return `<input type="number" ${commonProps} value="${Number(value)}"/>`
+
     default:
       break
   }
@@ -391,7 +396,7 @@ function getWebviewContent() {
     let selectOptions = []
     let customRow = ''
 
-    if (hasCustomInput) {
+    if (hasCustomInput && values[envKey].type === inputs.SELECT) {
       const hasSelectedOptions = values[envKey].values.some(
         (option) => value === option
       )
