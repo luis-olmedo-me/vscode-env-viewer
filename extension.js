@@ -352,9 +352,9 @@ function getInput({ commonProps, selectOptions, type, value, values }) {
 
       return `
       <div class="checkbox-wrapper">
-        <input class="checkbox shown" type="checkbox" ${selection}/>
         <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}"/>
         <input class="input" value="${value}"/>
+        <span class="check ${selection}"></span>
       </div>
       `
 
@@ -606,11 +606,20 @@ function getStyles() {
       height: 100%;
       opacity: 0;
       cursor: pointer;
+      z-index: 1;
     }
-    .checkbox-wrapper .checkbox.shown {
-      opacity: 1;
-      width: 23.2px;
-      right: 0;
+    .check {
+      position: absolute;
+      width: 11px;
+      height: 50%;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 3px;
+      background-color: var(--vscode-checkbox-foreground);
+    }
+    .check.checked {
+      background-color: var(--vscode-editorOverviewRuler-infoForeground);
     }
 
     .input.search {
