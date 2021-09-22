@@ -354,7 +354,7 @@ function getInput({ commonProps, selectOptions, type, value, values }) {
       <div class="checkbox-wrapper">
         <input class="checkbox shown" type="checkbox" ${selection}/>
         <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}"/>
-        <input class="input" onClick="" value=${value}/>
+        <input class="input" value="${value}"/>
       </div>
       `
 
