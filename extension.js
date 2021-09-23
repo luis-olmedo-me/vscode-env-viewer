@@ -4,6 +4,10 @@ const { parse } = require('dotenv')
 
 class EnvironmentHandler {
   constructor() {
+    this.init()
+  }
+
+  init() {
     this.panel = null
     this.file = null
     this.lines = []
@@ -111,6 +115,15 @@ class EnvironmentHandler {
     }
   }
 
+  handleOnExternalClose(file) {
+    const isSameFile = this.file.document.uri.path === file.uri.path
+
+    if (isSameFile) {
+      this.panel.dispose()
+      this.init()
+    }
+  }
+
   filterByKey({ value: filterKey }) {
     this.filterKey = filterKey
     this.updatePanel()
@@ -193,7 +206,15 @@ function activate(context) {
     environment.handleOnExternalSave(file)
   )
 
-  context.subscriptions.push(interpretateCommand, didSaveTextEvent)
+  const didCloseTextEvent = vscode.workspace.onDidCloseTextDocument((file) =>
+    environment.handleOnExternalClose(file)
+  )
+
+  context.subscriptions.push(
+    interpretateCommand,
+    didSaveTextEvent,
+    didCloseTextEvent
+  )
 }
 
 module.exports = {
