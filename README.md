@@ -95,6 +95,84 @@ KEY=secret_key_123
 
 &nbsp;
 
+> :information_source: **Env Value tags also has types that can be specified.** If you do not specify "select" is the default type.
+
+#### **Boolean**:
+
+Boolean inputs allows you to choose between two different values. The first value you set will be the value who represents the "true" value.
+
+<p align="center">
+  <img src="media/readme/env-values-boolean.gif" style="box-shadow: 0 5px 15px #11111170"/>
+</p>
+
+```ini
+// @env-template
+ENV=test
+SITE_URL=www.test.com
+ENV_VIEWER_REPO=test
+KEY=secret_key_123
+SHOW_INFO=true
+CODE=3212
+
+// @env-value:ENV
+//    test,prod
+
+// @env-value:SHOW_INFO(boolean)
+//    true,false
+```
+
+&nbsp;
+
+#### **Number**:
+
+Number inputs allows you to write only numbers. It doesn't requires for values to show.
+
+<p align="center">
+  <img src="media/readme/env-values-number.gif" style="box-shadow: 0 5px 15px #11111170"/>
+</p>
+
+```ini
+// @env-template
+ENV=test
+SITE_URL=www.test.com
+ENV_VIEWER_REPO=test
+KEY=secret_key_123
+SHOW_INFO=true
+CODE=3212
+
+// @env-value:ENV
+//    test,prod
+
+// @env-value:SHOW_INFO(boolean)
+//    true,false
+
+// @env-value:CODE(number)
+```
+
+&nbsp;
+
+You can also can set env keys with the same values if you specify them inside parentesis and between comas.
+
+```ini
+// @env-template
+ENV=test
+SITE_URL=www.test.com
+ENV_VIEWER_REPO=test
+KEY=secret_key_123
+
+// @env-value:(ENV,SITE_URL)
+//    test,prod
+```
+
+If you need to specify input type, you can do it as you did before
+
+```ini
+// @env-value:(SHOW_INFO,SHOW_STUFF)(boolean)
+//    true,false
+```
+
+&nbsp;
+
 ### **Env Mode Tag**:
 
 ---
