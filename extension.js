@@ -353,7 +353,7 @@ const parseEnvValues = (setOfLines) => {
 const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   return `
   (function() {
-    const value = event.target.value
+    const value = event.target.type !== 'number' ? event.target.value : event.target.value || '0'
     const envType = '${envType}'
     const envKey = '${envKey}'
     const scope = '${scope}'
