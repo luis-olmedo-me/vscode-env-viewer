@@ -95,7 +95,9 @@ KEY=secret_key_123
 
 &nbsp;
 
-> :information_source: **Env Value tags also has types that can be specified.** If you do not specify "select" is the default type.
+**Env Value tags also has types that can be specified.** If you do not specify "select" is the default type.
+
+&nbsp;
 
 #### **Boolean**:
 
