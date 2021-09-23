@@ -232,7 +232,13 @@ function getValuesArray(lines = []) {
         line.includes(envKey)
       )
 
-      key = newKey || key
+      if (!newKey) {
+        vscode.window.showErrorMessage(`Error: Unknown env tag \"${line}\"`)
+
+        return sectionedLines
+      }
+
+      key = newKey
     }
 
     const oldLines = sectionedLines[key] || []
