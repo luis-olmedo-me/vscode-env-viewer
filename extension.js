@@ -184,17 +184,23 @@ function activate(context) {
   const interpretateCommand = vscode.commands.registerCommand(
     eventKeys.OPEN_PREVIEW,
     function openPreview() {
-      environment.setFile(vscode.window.activeTextEditor)
+      const activeTextEditor = vscode.window.activeTextEditor
+      const isDifferentFile = environment.file !== activeTextEditor
+
+      environment.setFile(activeTextEditor)
 
       if (!environment.panel) {
         const panel = vscode.window.createWebviewPanel(
           'editor',
-          basename(vscode.window.activeTextEditor.document.fileName),
+          basename(activeTextEditor.document.fileName),
           vscode.ViewColumn.Two,
           { enableScripts: true }
         )
 
         environment.setPanel(panel, context)
+        environment.updatePanel()
+      } else if (isDifferentFile) {
+        environment.panel.title = basename(activeTextEditor.document.fileName)
         environment.updatePanel()
       } else {
         environment.panel.reveal(2)
