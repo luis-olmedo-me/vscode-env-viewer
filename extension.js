@@ -4,6 +4,10 @@ const { parse } = require('dotenv')
 
 class EnvironmentHandler {
   constructor() {
+    this.init()
+  }
+
+  init() {
     this.panel = null
     this.file = null
     this.lines = []
@@ -111,6 +115,15 @@ class EnvironmentHandler {
     }
   }
 
+  handleOnExternalClose(file) {
+    const isSameFile = this.file.document.uri.path === file.uri.path
+
+    if (isSameFile) {
+      this.panel.dispose()
+      this.init()
+    }
+  }
+
   filterByKey({ value: filterKey }) {
     this.filterKey = filterKey
     this.updatePanel()
@@ -171,17 +184,23 @@ function activate(context) {
   const interpretateCommand = vscode.commands.registerCommand(
     eventKeys.OPEN_PREVIEW,
     function openPreview() {
-      environment.setFile(vscode.window.activeTextEditor)
+      const activeTextEditor = vscode.window.activeTextEditor
+      const isDifferentFile = environment.file !== activeTextEditor
+
+      environment.setFile(activeTextEditor)
 
       if (!environment.panel) {
         const panel = vscode.window.createWebviewPanel(
           'editor',
-          basename(vscode.window.activeTextEditor.document.fileName),
+          basename(activeTextEditor.document.fileName),
           vscode.ViewColumn.Two,
           { enableScripts: true }
         )
 
         environment.setPanel(panel, context)
+        environment.updatePanel()
+      } else if (isDifferentFile) {
+        environment.panel.title = basename(activeTextEditor.document.fileName)
         environment.updatePanel()
       } else {
         environment.panel.reveal(2)
@@ -193,7 +212,15 @@ function activate(context) {
     environment.handleOnExternalSave(file)
   )
 
-  context.subscriptions.push(interpretateCommand, didSaveTextEvent)
+  const didCloseTextEvent = vscode.workspace.onDidCloseTextDocument((file) =>
+    environment.handleOnExternalClose(file)
+  )
+
+  context.subscriptions.push(
+    interpretateCommand,
+    didSaveTextEvent,
+    didCloseTextEvent
+  )
 }
 
 module.exports = {
@@ -211,7 +238,13 @@ function getValuesArray(lines = []) {
         line.includes(envKey)
       )
 
-      key = newKey || key
+      if (!newKey) {
+        vscode.window.showErrorMessage(`Error: Unknown env tag \"${line}\"`)
+
+        return sectionedLines
+      }
+
+      key = newKey
     }
 
     const oldLines = sectionedLines[key] || []
