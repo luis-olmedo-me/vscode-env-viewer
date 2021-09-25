@@ -523,6 +523,7 @@ function getWebviewContent() {
       type="text"
       placeholder="Search by mode"
       onchange="${getFilterEventFunction(eventKeys.FILTER_BY_MODE)}"
+      value="${filterMode}"
     />
 
     <table class="table">
