@@ -414,7 +414,9 @@ const parseEnvValues = (setOfLines) => {
 const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   return `
   (function() {
-    const value = event.target.type !== 'number' ? event.target.value : event.target.value || '0'
+    const defaultValue = typeof event.target.dataset.defaultValue === 'string' ? event.target.dataset.defaultValue : event.target.value
+    const value = event.target.value || defaultValue
+
     const envType = '${envType}'
     const envKey = '${envKey}'
     const scope = '${scope}'
@@ -487,7 +489,7 @@ function getInput({
     case inputs.NUMBER:
       const numberValue = Number(value)
 
-      return `<input type="number" ${commonProps} value="${numberValue}" ${optionsInLine}/>`
+      return `<input type="number" ${commonProps} value="${numberValue}" ${optionsInLine} data-default-value="0"/>`
 
     case inputs.TEXT:
     default:
