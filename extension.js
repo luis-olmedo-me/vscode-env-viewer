@@ -414,10 +414,17 @@ const getDefaultOption = (value = 'Custom') => {
   return `<option selected disabled>${value}</option>`
 }
 
-function getInput({ commonProps, selectOptions, type, value, values }) {
+function getInput({
+  commonProps,
+  selectOptions,
+  value,
+  customInput: { type, values, ...options },
+}) {
+  const disablation = options && options.disabled ? 'disabled' : ''
+
   switch (type) {
     case inputs.SELECT:
-      return `<select ${commonProps}>${selectOptions.join()}</select>`
+      return `<select ${commonProps} ${disablation}>${selectOptions.join()}</select>`
 
     case inputs.BOOLEAN:
       const [firstOption, lastOption] = values
@@ -428,14 +435,16 @@ function getInput({ commonProps, selectOptions, type, value, values }) {
 
       return `
       <div class="checkbox-wrapper">
-        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}"/>
-        <input class="input" value="${value}"/>
+        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}" ${disablation}/>
+        <input class="input" value="${value}" ${disablation}/>
         <span class="check ${selection}"></span>
       </div>
       `
 
     case inputs.NUMBER:
-      return `<input type="number" ${commonProps} value="${Number(value)}"/>`
+      const numberValue = Number(value)
+
+      return `<input type="number" ${commonProps} value="${numberValue}" ${disablation}/>`
 
     default:
       break
@@ -488,8 +497,7 @@ function getWebviewContent() {
     const input = !customInput
       ? `<input type="text" ${commonProps} value="${value}"/>`
       : getInput({
-          type: customInput.type,
-          values: customInput.values,
+          customInput: customInput || {},
           commonProps,
           selectOptions,
           value,
@@ -632,6 +640,10 @@ function getStyles() {
     .table,
     .input {
       width: 100%;
+    }
+
+    .input[disabled] {
+      background-color: var(--vscode-inputOption-activeBackground);
     }
 
     .table {
