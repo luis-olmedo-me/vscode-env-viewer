@@ -60,7 +60,7 @@ class EnvironmentHandler {
     this.blockedKeys = Object.keys(this.values).reduce((blockedKeys, key) => {
       const value = this.values[key]
 
-      return value.blocked ? [...blockedKeys, key] : blockedKeys
+      return value.constant ? [...blockedKeys, key] : blockedKeys
     }, [])
   }
 
@@ -185,7 +185,7 @@ const inputs = {
 
 const inputOptions = {
   DISABLED: 'disabled',
-  BLOCKED: 'blocked',
+  CONSTANT: 'constant',
 }
 
 function handleDidReceiveMessage(message) {
@@ -456,11 +456,13 @@ function getInput({
 }) {
   const options = optionsRest || {}
   const disablation =
-    options[inputOptions.DISABLED] || options[inputOptions.BLOCKED]
+    options[inputOptions.DISABLED] || options[inputOptions.CONSTANT]
       ? 'disabled'
       : ''
 
-  const blocker = options[inputOptions.BLOCKED] ? 'data-is-blocked="true"' : ''
+  const blocker = options[inputOptions.CONSTANT]
+    ? 'data-is-constant="true"'
+    : ''
   const optionsInLine = `${disablation} ${blocker}`
 
   switch (type) {
@@ -536,8 +538,8 @@ function getWebviewContent() {
 
     customRow = hasBeenChanged ? 'class="changed"' : customRow
     customRow =
-      customInput && customInput.blocked
-        ? `${customRow} data-is-blocked="true"`
+      customInput && customInput.constant
+        ? `${customRow} data-is-constant="true"`
         : customRow
 
     const input = getInput({
@@ -713,7 +715,7 @@ function getStyles() {
       background: var(--vscode-gitDecoration-addedResourceForeground);
     }
 
-    .table td.changed[data-is-blocked="true"] {
+    .table td.changed[data-is-constant="true"] {
       background: var(--vscode-gitDecoration-untrackedResourceForeground);
     }
 
