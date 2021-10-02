@@ -14,6 +14,7 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
+    this.blockedKeys = []
     this.recentChanges = {}
     this.modeRecentChanged = ''
     this.filterKey = ''
@@ -55,21 +56,39 @@ class EnvironmentHandler {
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
+
+    this.blockedKeys = Object.keys(this.values).reduce((blockedKeys, key) => {
+      const value = this.values[key]
+
+      return value.blocked ? [...blockedKeys, key] : blockedKeys
+    }, [])
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
     switch (envType) {
-      case envKeys.ENV_VALUE:
+      case envKeys.ENV_VALUE: {
+        const change = removeBlockedChanges(
+          { [envKey]: value },
+          this.blockedKeys
+        )
+
         this.template[envKey] = value
         this.modeRecentChanged = ''
-        this.recentChanges = { [envKey]: value }
+        this.recentChanges = change
         break
+      }
 
-      case envKeys.ENV_MODE:
-        this.template = { ...this.template, ...this.modes[scope][value] }
+      case envKeys.ENV_MODE: {
+        const changes = removeBlockedChanges(
+          this.modes[scope][value],
+          this.blockedKeys
+        )
+
+        this.template = { ...this.template, ...changes }
         this.modeRecentChanged = scope
-        this.recentChanges = this.modes[scope][value]
+        this.recentChanges = changes
         break
+      }
     }
 
     const templateIndex =
@@ -165,6 +184,7 @@ const inputs = {
 
 const inputOptions = {
   DISABLED: 'disabled',
+  BLOCKED: 'blocked',
 }
 
 function handleDidReceiveMessage(message) {
@@ -229,6 +249,16 @@ function activate(context) {
 
 module.exports = {
   activate,
+}
+
+function removeBlockedChanges(changes, blockedKeys) {
+  return Object.keys(changes).reduce((changesKept, key) => {
+    const change = changes[key]
+
+    return blockedKeys.includes(key)
+      ? changesKept
+      : { ...changesKept, [key]: change }
+  }, {})
 }
 
 function getValuesArray(lines = []) {
@@ -418,13 +448,18 @@ function getInput({
   commonProps,
   selectOptions,
   value,
-  customInput: { type, values, ...options },
+  customInput: { type, values, ...optionsRest },
 }) {
-  const disablation = options && options.disabled ? 'disabled' : ''
+  const options = optionsRest || {}
+  const disablation =
+    options[inputOptions.DISABLED] || options[inputOptions.BLOCKED]
+      ? 'disabled'
+      : ''
+  const optionsInLine = `${disablation}`
 
   switch (type) {
     case inputs.SELECT:
-      return `<select ${commonProps} ${disablation}>${selectOptions.join()}</select>`
+      return `<select ${commonProps} ${optionsInLine}>${selectOptions.join()}</select>`
 
     case inputs.BOOLEAN:
       const [firstOption, lastOption] = values
@@ -435,8 +470,8 @@ function getInput({
 
       return `
       <div class="checkbox-wrapper">
-        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}" ${disablation}/>
-        <input class="input" value="${value}" ${disablation}/>
+        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}" ${optionsInLine}/>
+        <input class="input" value="${value}" ${optionsInLine}/>
         <span class="check ${selection}"></span>
       </div>
       `
@@ -444,7 +479,7 @@ function getInput({
     case inputs.NUMBER:
       const numberValue = Number(value)
 
-      return `<input type="number" ${commonProps} value="${numberValue}" ${disablation}/>`
+      return `<input type="number" ${commonProps} value="${numberValue}" ${optionsInLine}/>`
 
     default:
       break
