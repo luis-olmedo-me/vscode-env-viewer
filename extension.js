@@ -690,6 +690,7 @@ function getStyles() {
 
     .input[disabled] {
       background-color: var(--vscode-inputOption-activeBackground);
+      opacity: 1;
     }
 
     .table {
@@ -747,6 +748,10 @@ function getStyles() {
       opacity: 0;
       cursor: pointer;
       z-index: 1;
+      cursor: unset;
+    }
+    .checkbox-wrapper .checkbox[disabled] {
+      display: none;
     }
     .check {
       position: absolute;
