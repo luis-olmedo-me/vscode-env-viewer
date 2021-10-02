@@ -508,9 +508,7 @@ function getInput({
       `
 
     case inputs.NUMBER:
-      const numberValue = Number(value)
-
-      return `<input class="input" type="number" onChange="${handleOnChange}" value="${numberValue}" ${optionsInLine} data-default-value="0"/>`
+      return `<input class="input" type="number" onChange="${handleOnChange}" value="${value}" ${optionsInLine} data-default-value="0"/>`
 
     case inputs.TEXT:
     default:
