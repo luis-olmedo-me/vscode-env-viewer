@@ -674,6 +674,7 @@ function getStyles() {
     input,
     select {
       font-family: var(--vscode-editor-font-family);
+      font-size: var(--vscode-editor-font-size);
     }
 
     .title {
