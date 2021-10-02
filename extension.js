@@ -180,6 +180,7 @@ const inputs = {
   SELECT: 'select',
   BOOLEAN: 'boolean',
   NUMBER: 'number',
+  TEXT: 'text',
 }
 
 const inputOptions = {
@@ -346,7 +347,7 @@ const parseEnvModes = (setOfLines) => {
   }, {})
 }
 
-function getOptions(optionsString = '') {
+function getOptions(optionsString = '', defaultType) {
   const types = Object.values(inputs)
   const allowedOptions = Object.values(inputOptions)
 
@@ -363,7 +364,7 @@ function getOptions(optionsString = '') {
 
       return options
     },
-    { type: inputs.SELECT }
+    { type: defaultType }
   )
 }
 
@@ -387,8 +388,11 @@ const parseEnvValues = (setOfLines) => {
     }
 
     const [keys, optionsInRow] = cuttedMetadata.slice(1)
-    const parsedValues = values.map((value) => value.trim())
-    const options = getOptions(optionsInRow)
+    const parsedValues = values.map((value) => value.trim()).filter(Boolean)
+    const options = getOptions(
+      optionsInRow,
+      parsedValues.length ? inputs.SELECT : inputs.TEXT
+    )
 
     const parsedKeys = keys.split(',').reduce((result, key) => {
       return {
@@ -483,8 +487,9 @@ function getInput({
 
       return `<input type="number" ${commonProps} value="${numberValue}" ${optionsInLine}/>`
 
+    case inputs.TEXT:
     default:
-      break
+      return `<input type="text" ${commonProps} ${optionsInLine} value="${value}"/>`
   }
 }
 
@@ -535,14 +540,12 @@ function getWebviewContent() {
         ? `${customRow} data-is-blocked="true"`
         : customRow
 
-    const input = !customInput
-      ? `<input type="text" ${commonProps} value="${value}"/>`
-      : getInput({
-          customInput: customInput || {},
-          commonProps,
-          selectOptions,
-          value,
-        })
+    const input = getInput({
+      customInput: customInput || {},
+      commonProps,
+      selectOptions,
+      value,
+    })
 
     return `
 		<tr>
