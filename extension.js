@@ -14,10 +14,12 @@ class EnvironmentHandler {
     this.template = {}
     this.modes = {}
     this.values = {}
+    this.blockedKeys = []
     this.recentChanges = {}
     this.modeRecentChanged = ''
     this.filterKey = ''
     this.filterMode = ''
+    this.templateRealSize = 0
   }
 
   setPanel(panel, context) {
@@ -55,21 +57,41 @@ class EnvironmentHandler {
     this.template = parseEnvTemplate(parsedLines[envKeys.ENV_TEMPLATE])
     this.modes = parseEnvModes(parsedLines[envKeys.ENV_MODE])
     this.values = parseEnvValues(parsedLines[envKeys.ENV_VALUE])
+
+    this.blockedKeys = Object.keys(this.values).reduce((blockedKeys, key) => {
+      const value = this.values[key]
+
+      return value.constant ? [...blockedKeys, key] : blockedKeys
+    }, [])
+
+    this.templateRealSize = parsedLines[envKeys.ENV_TEMPLATE].length
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
     switch (envType) {
-      case envKeys.ENV_VALUE:
+      case envKeys.ENV_VALUE: {
+        const change = removeBlockedChanges(
+          { [envKey]: value },
+          this.blockedKeys
+        )
+
         this.template[envKey] = value
         this.modeRecentChanged = ''
-        this.recentChanges = { [envKey]: value }
+        this.recentChanges = change
         break
+      }
 
-      case envKeys.ENV_MODE:
-        this.template = { ...this.template, ...this.modes[scope][value] }
+      case envKeys.ENV_MODE: {
+        const changes = removeBlockedChanges(
+          this.modes[scope][value],
+          this.blockedKeys
+        )
+
+        this.template = { ...this.template, ...changes }
         this.modeRecentChanged = scope
         this.recentChanges = this.modes[scope][value]
         break
+      }
     }
 
     const templateIndex =
@@ -77,7 +99,9 @@ class EnvironmentHandler {
 
     this.file
       .edit((editBuilder) => {
-        Object.keys(this.template).forEach((key, index) => {
+        const templateKeys = Object.keys(this.template)
+
+        templateKeys.forEach((key, index) => {
           const line = this.file.document.lineAt(templateIndex + index).text
 
           const linePosition = new vscode.Position(templateIndex + index, 0)
@@ -93,6 +117,22 @@ class EnvironmentHandler {
             `${key}=${value}`
           )
         })
+
+        for (
+          let index = templateKeys.length + templateIndex;
+          index < this.templateRealSize;
+          index++
+        ) {
+          const line = this.file.document.lineAt(index).text
+
+          const linePosition = new vscode.Position(index, 0)
+          const linePositionEnd = new vscode.Position(index, line.length)
+
+          editBuilder.replace(
+            new vscode.Range(linePosition, linePositionEnd),
+            ''
+          )
+        }
       })
       .then(() => {
         this.file.document.save().then(() => {
@@ -161,6 +201,12 @@ const inputs = {
   SELECT: 'select',
   BOOLEAN: 'boolean',
   NUMBER: 'number',
+  TEXT: 'text',
+}
+
+const inputOptions = {
+  DISABLED: 'disabled',
+  CONSTANT: 'constant',
 }
 
 function handleDidReceiveMessage(message) {
@@ -225,6 +271,16 @@ function activate(context) {
 
 module.exports = {
   activate,
+}
+
+function removeBlockedChanges(changes, blockedKeys) {
+  return Object.keys(changes).reduce((changesKept, key) => {
+    const change = changes[key]
+
+    return blockedKeys.includes(key)
+      ? changesKept
+      : { ...changesKept, [key]: change }
+  }, {})
 }
 
 function getValuesArray(lines = []) {
@@ -312,6 +368,27 @@ const parseEnvModes = (setOfLines) => {
   }, {})
 }
 
+function getOptions(optionsString = '', defaultType) {
+  const types = Object.values(inputs)
+  const allowedOptions = Object.values(inputOptions)
+
+  return optionsString.split(' ').reduce(
+    (options, option) => {
+      const isType = types.includes(option)
+      const isKnownOption = allowedOptions.includes(option)
+
+      if (isType) {
+        return { ...options, type: option }
+      } else if (isKnownOption) {
+        return { ...options, [option]: true }
+      }
+
+      return options
+    },
+    { type: defaultType }
+  )
+}
+
 const parseEnvValues = (setOfLines) => {
   return setOfLines.reduce((envModes, lines) => {
     const [metadata, valuesInLine] = lines
@@ -331,14 +408,19 @@ const parseEnvValues = (setOfLines) => {
       return envModes
     }
 
-    const [keys, type] = cuttedMetadata.slice(1)
-    const parsedValues = values.map((value) => value.trim())
+    const [keys, optionsInRow] = cuttedMetadata.slice(1)
+    const parsedValues = values.map((value) => value.trim()).filter(Boolean)
+    const options = getOptions(
+      optionsInRow,
+      parsedValues.length ? inputs.SELECT : inputs.TEXT
+    )
+
     const parsedKeys = keys.split(',').reduce((result, key) => {
       return {
         ...result,
         [key]: {
           values: parsedValues,
-          type: type || inputs.SELECT,
+          ...options,
         },
       }
     }, {})
@@ -353,7 +435,10 @@ const parseEnvValues = (setOfLines) => {
 const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   return `
   (function() {
-    const value = event.target.type !== 'number' ? event.target.value : event.target.value || '0'
+    const dataset = event.target.dataset || {}
+    const defaultValue = typeof dataset.defaultValue === 'string' ? dataset.defaultValue : event.target.value
+    const value = dataset.value || event.target.value || defaultValue
+
     const envType = '${envType}'
     const envKey = '${envKey}'
     const scope = '${scope}'
@@ -387,10 +472,26 @@ const getDefaultOption = (value = 'Custom') => {
   return `<option selected disabled>${value}</option>`
 }
 
-function getInput({ commonProps, selectOptions, type, value, values }) {
+function getInput({
+  handleOnChange,
+  selectOptions,
+  value,
+  customInput: { type, values, ...optionsRest },
+}) {
+  const options = optionsRest || {}
+  const disablation =
+    options[inputOptions.DISABLED] || options[inputOptions.CONSTANT]
+      ? 'disabled'
+      : ''
+
+  const blocker = options[inputOptions.CONSTANT]
+    ? 'data-is-constant="true"'
+    : ''
+  const optionsInLine = `${disablation} ${blocker}`
+
   switch (type) {
     case inputs.SELECT:
-      return `<select ${commonProps}>${selectOptions.join()}</select>`
+      return `<select class="input" onChange="${handleOnChange}" ${optionsInLine}>${selectOptions.join()}</select>`
 
     case inputs.BOOLEAN:
       const [firstOption, lastOption] = values
@@ -401,17 +502,17 @@ function getInput({ commonProps, selectOptions, type, value, values }) {
 
       return `
       <div class="checkbox-wrapper">
-        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}"/>
-        <input class="input" value="${value}"/>
+        <input class="input" value="${value}" onClick="${handleOnChange}" ${optionsInLine} data-value="${nextValue}"/>
         <span class="check ${selection}"></span>
       </div>
       `
 
     case inputs.NUMBER:
-      return `<input type="number" ${commonProps} value="${Number(value)}"/>`
+      return `<input class="input" type="number" onChange="${handleOnChange}" value="${value}" ${optionsInLine} data-default-value="0"/>`
 
+    case inputs.TEXT:
     default:
-      break
+      return `<input class="input" type="text" onChange="${handleOnChange}" ${optionsInLine} value="${value}"/>`
   }
 }
 
@@ -431,7 +532,6 @@ function getWebviewContent() {
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
-    const commonProps = `onChange="${handleOnChange}" class="input"`
     const hasBeenChanged = environment.recentChanges.hasOwnProperty(envKey)
 
     let selectOptions = []
@@ -457,16 +557,17 @@ function getWebviewContent() {
     }
 
     customRow = hasBeenChanged ? 'class="changed"' : customRow
+    customRow =
+      customInput && customInput.constant
+        ? `${customRow} data-is-constant="true"`
+        : customRow
 
-    const input = !customInput
-      ? `<input type="text" ${commonProps} value="${value}"/>`
-      : getInput({
-          type: customInput.type,
-          values: customInput.values,
-          commonProps,
-          selectOptions,
-          value,
-        })
+    const input = getInput({
+      customInput: customInput || {},
+      handleOnChange,
+      selectOptions,
+      value,
+    })
 
     return `
 		<tr>
@@ -592,6 +693,7 @@ function getStyles() {
     input,
     select {
       font-family: var(--vscode-editor-font-family);
+      font-size: var(--vscode-editor-font-size);
     }
 
     .title {
@@ -607,6 +709,11 @@ function getStyles() {
       width: 100%;
     }
 
+    .input[disabled] {
+      background-color: var(--vscode-inputOption-activeBackground);
+      opacity: 1;
+    }
+
     .table {
       margin-bottom: 30px;
     }
@@ -620,6 +727,7 @@ function getStyles() {
       padding-left: 10px;
       background: var(--vscode-gitDecoration-ignoredResourceForeground);
       border-radius: 3px;
+      display: flex;
     }
     
     .table td.custom:last-child {
@@ -628,6 +736,10 @@ function getStyles() {
 
     .table td.changed:last-child {
       background: var(--vscode-gitDecoration-addedResourceForeground);
+    }
+
+    .table td.changed[data-is-constant="true"] {
+      background: var(--vscode-gitDecoration-untrackedResourceForeground);
     }
 
     .table td:last-child:focus-within {
@@ -649,15 +761,10 @@ function getStyles() {
     
     .checkbox-wrapper {
       position: relative;
-    }
-    .checkbox-wrapper .checkbox {
-      position: absolute;
       width: 100%;
-      margin: 0;
-      height: 100%;
-      opacity: 0;
+    }
+    .checkbox-wrapper .input {
       cursor: pointer;
-      z-index: 1;
     }
     .check {
       position: absolute;
