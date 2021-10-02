@@ -708,6 +708,7 @@ function getStyles() {
       padding-left: 10px;
       background: var(--vscode-gitDecoration-ignoredResourceForeground);
       border-radius: 3px;
+      display: flex;
     }
     
     .table td.custom:last-child {
@@ -741,6 +742,7 @@ function getStyles() {
     
     .checkbox-wrapper {
       position: relative;
+      width: 100%;
     }
     .checkbox-wrapper .input {
       cursor: pointer;
