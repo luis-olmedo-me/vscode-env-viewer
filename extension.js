@@ -86,7 +86,7 @@ class EnvironmentHandler {
 
         this.template = { ...this.template, ...changes }
         this.modeRecentChanged = scope
-        this.recentChanges = changes
+        this.recentChanges = this.modes[scope][value]
         break
       }
     }
@@ -455,7 +455,9 @@ function getInput({
     options[inputOptions.DISABLED] || options[inputOptions.BLOCKED]
       ? 'disabled'
       : ''
-  const optionsInLine = `${disablation}`
+
+  const blocker = options[inputOptions.BLOCKED] ? 'data-is-blocked="true"' : ''
+  const optionsInLine = `${disablation} ${blocker}`
 
   switch (type) {
     case inputs.SELECT:
@@ -528,6 +530,10 @@ function getWebviewContent() {
     }
 
     customRow = hasBeenChanged ? 'class="changed"' : customRow
+    customRow =
+      customInput && customInput.blocked
+        ? `${customRow} data-is-blocked="true"`
+        : customRow
 
     const input = !customInput
       ? `<input type="text" ${commonProps} value="${value}"/>`
@@ -702,6 +708,10 @@ function getStyles() {
 
     .table td.changed:last-child {
       background: var(--vscode-gitDecoration-addedResourceForeground);
+    }
+
+    .table td.changed[data-is-blocked="true"] {
+      background: var(--vscode-gitDecoration-untrackedResourceForeground);
     }
 
     .table td:last-child:focus-within {
