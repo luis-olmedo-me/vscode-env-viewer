@@ -19,6 +19,7 @@ class EnvironmentHandler {
     this.modeRecentChanged = ''
     this.filterKey = ''
     this.filterMode = ''
+    this.templateRealSize = 0
   }
 
   setPanel(panel, context) {
@@ -62,6 +63,8 @@ class EnvironmentHandler {
 
       return value.constant ? [...blockedKeys, key] : blockedKeys
     }, [])
+
+    this.templateRealSize = parsedLines[envKeys.ENV_TEMPLATE].length
   }
 
   updateEnvironment({ envType, envKey, scope, value }) {
@@ -96,7 +99,9 @@ class EnvironmentHandler {
 
     this.file
       .edit((editBuilder) => {
-        Object.keys(this.template).forEach((key, index) => {
+        const templateKeys = Object.keys(this.template)
+
+        templateKeys.forEach((key, index) => {
           const line = this.file.document.lineAt(templateIndex + index).text
 
           const linePosition = new vscode.Position(templateIndex + index, 0)
@@ -112,6 +117,22 @@ class EnvironmentHandler {
             `${key}=${value}`
           )
         })
+
+        for (
+          let index = templateKeys.length + templateIndex;
+          index < this.templateRealSize;
+          index++
+        ) {
+          const line = this.file.document.lineAt(index).text
+
+          const linePosition = new vscode.Position(index, 0)
+          const linePositionEnd = new vscode.Position(index, line.length)
+
+          editBuilder.replace(
+            new vscode.Range(linePosition, linePositionEnd),
+            ''
+          )
+        }
       })
       .then(() => {
         this.file.document.save().then(() => {
