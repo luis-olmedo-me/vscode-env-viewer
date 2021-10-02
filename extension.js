@@ -414,8 +414,9 @@ const parseEnvValues = (setOfLines) => {
 const getEventFunction = ({ envType, envKey = null, scope = null }) => {
   return `
   (function() {
-    const defaultValue = typeof event.target.dataset.defaultValue === 'string' ? event.target.dataset.defaultValue : event.target.value
-    const value = event.target.value || defaultValue
+    const dataset = event.target.dataset || {}
+    const defaultValue = typeof dataset.defaultValue === 'string' ? dataset.defaultValue : event.target.value
+    const value = dataset.value || event.target.value || defaultValue
 
     const envType = '${envType}'
     const envKey = '${envKey}'
@@ -451,7 +452,7 @@ const getDefaultOption = (value = 'Custom') => {
 }
 
 function getInput({
-  commonProps,
+  handleOnChange,
   selectOptions,
   value,
   customInput: { type, values, ...optionsRest },
@@ -469,7 +470,7 @@ function getInput({
 
   switch (type) {
     case inputs.SELECT:
-      return `<select ${commonProps} ${optionsInLine}>${selectOptions.join()}</select>`
+      return `<select class="input" onChange="${handleOnChange}" ${optionsInLine}>${selectOptions.join()}</select>`
 
     case inputs.BOOLEAN:
       const [firstOption, lastOption] = values
@@ -480,8 +481,7 @@ function getInput({
 
       return `
       <div class="checkbox-wrapper">
-        <input class="checkbox" type="checkbox" ${commonProps} value="${nextValue}" ${optionsInLine}/>
-        <input class="input" value="${value}" ${optionsInLine}/>
+        <input class="input" value="${value}" onClick="${handleOnChange}" ${optionsInLine} data-value="${nextValue}"/>
         <span class="check ${selection}"></span>
       </div>
       `
@@ -489,11 +489,11 @@ function getInput({
     case inputs.NUMBER:
       const numberValue = Number(value)
 
-      return `<input type="number" ${commonProps} value="${numberValue}" ${optionsInLine} data-default-value="0"/>`
+      return `<input class="input" type="number" onChange="${handleOnChange}" value="${numberValue}" ${optionsInLine} data-default-value="0"/>`
 
     case inputs.TEXT:
     default:
-      return `<input type="text" ${commonProps} ${optionsInLine} value="${value}"/>`
+      return `<input class="input" type="text" onChange="${handleOnChange}" ${optionsInLine} value="${value}"/>`
   }
 }
 
@@ -513,7 +513,6 @@ function getWebviewContent() {
 
     const eventData = { envType: envKeys.ENV_VALUE, envKey }
     const handleOnChange = getEventFunction(eventData)
-    const commonProps = `onChange="${handleOnChange}" class="input"`
     const hasBeenChanged = environment.recentChanges.hasOwnProperty(envKey)
 
     let selectOptions = []
@@ -546,7 +545,7 @@ function getWebviewContent() {
 
     const input = getInput({
       customInput: customInput || {},
-      commonProps,
+      handleOnChange,
       selectOptions,
       value,
     })
@@ -742,18 +741,8 @@ function getStyles() {
     .checkbox-wrapper {
       position: relative;
     }
-    .checkbox-wrapper .checkbox {
-      position: absolute;
-      width: 100%;
-      margin: 0;
-      height: 100%;
-      opacity: 0;
+    .checkbox-wrapper .input {
       cursor: pointer;
-      z-index: 1;
-      cursor: unset;
-    }
-    .checkbox-wrapper .checkbox[disabled] {
-      display: none;
     }
     .check {
       position: absolute;
