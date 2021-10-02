@@ -163,6 +163,10 @@ const inputs = {
   NUMBER: 'number',
 }
 
+const inputOptions = {
+  DISABLED: 'disabled',
+}
+
 function handleDidReceiveMessage(message) {
   switch (message.command) {
     case eventKeys.CHANGED_VALUE:
@@ -312,6 +316,27 @@ const parseEnvModes = (setOfLines) => {
   }, {})
 }
 
+function getOptions(optionsString = '') {
+  const types = Object.values(inputs)
+  const allowedOptions = Object.values(inputOptions)
+
+  return optionsString.split(' ').reduce(
+    (options, option) => {
+      const isType = types.includes(option)
+      const isKnownOption = allowedOptions.includes(option)
+
+      if (isType) {
+        return { ...options, type: option }
+      } else if (isKnownOption) {
+        return { ...options, [option]: true }
+      }
+
+      return options
+    },
+    { type: inputs.SELECT }
+  )
+}
+
 const parseEnvValues = (setOfLines) => {
   return setOfLines.reduce((envModes, lines) => {
     const [metadata, valuesInLine] = lines
@@ -331,14 +356,16 @@ const parseEnvValues = (setOfLines) => {
       return envModes
     }
 
-    const [keys, type] = cuttedMetadata.slice(1)
+    const [keys, optionsInRow] = cuttedMetadata.slice(1)
     const parsedValues = values.map((value) => value.trim())
+    const options = getOptions(optionsInRow)
+
     const parsedKeys = keys.split(',').reduce((result, key) => {
       return {
         ...result,
         [key]: {
           values: parsedValues,
-          type: type || inputs.SELECT,
+          ...options,
         },
       }
     }, {})
