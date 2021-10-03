@@ -120,7 +120,7 @@ class EnvironmentHandler {
 
         for (
           let index = templateKeys.length + templateIndex;
-          index < this.templateRealSize;
+          index < this.templateRealSize + templateIndex - 2;
           index++
         ) {
           const line = this.file.document.lineAt(index).text
