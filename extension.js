@@ -765,6 +765,7 @@ function getStyles() {
     }
     .checkbox-wrapper .input {
       cursor: pointer;
+      caret-color: transparent;
     }
     .check {
       position: absolute;

@@ -76,7 +76,13 @@
           "group": "navigation"
         }
       ]
-    }
+    },
+    "snippets": [
+      {
+        "language": "env",
+        "path": "./snippets.json"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
