@@ -1,0 +1,15 @@
+{
+  "Env Value": {
+    "scope": "env",
+    "prefix": "env-value",
+    "body": ["// @env-value:($1)($2)", "//    $3"],
+    "description": "Environment value"
+  },
+
+  "Env Mode": {
+    "scope": "env",
+    "prefix": "env-mode",
+    "body": ["// @env-mode:$1.$2", "//    $3"],
+    "description": "Environment mode"
+  }
+}
