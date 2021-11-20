@@ -211,6 +211,16 @@ const inputOptions = {
 
 const defaultTheme = {
   unchangedValue: 'var(--vscode-gitDecoration-ignoredResourceForeground)',
+  unexpectedValue: 'var(--vscode-gitDecoration-modifiedResourceForeground)',
+  changedValue: 'var(--vscode-gitDecoration-addedResourceForeground)',
+  conflictValue: 'var(--vscode-gitDecoration-untrackedResourceForeground)',
+  focusedValue: 'var(--vscode-gitDecoration-renamedResourceForeground)',
+  inputBackground: 'var(--vscode-input-background)',
+  inputForground: 'var(--vscode-input-foreground)',
+  inputDisabledBackground: 'var(--vscode-inputOption-activeBackground)',
+  inputBooleanCheckOn: 'var(--vscode-editorOverviewRuler-infoForeground)',
+  inputBooleanCheckOff: 'var(--vscode-checkbox-foreground)',
+  inputFocusedForeground: 'var(--vscode-menu-selectionForeground)',
 }
 const config = vscode.workspace.getConfiguration('env-viewer')
 
@@ -719,7 +729,7 @@ function getStyles() {
     }
 
     .input[disabled] {
-      background-color: var(--vscode-inputOption-activeBackground);
+      background-color: ${theme.inputDisabledBackground};
       opacity: 1;
     }
 
@@ -734,25 +744,25 @@ function getStyles() {
 
     .table td:last-child {
       padding-left: 10px;
-      background: var(--vscode-gitDecoration-ignoredResourceForeground);
+      background: ${theme.unchangedValue};
       border-radius: 3px;
       display: flex;
     }
     
     .table td.custom:last-child {
-      background: var(--vscode-gitDecoration-modifiedResourceForeground);
+      background: ${theme.unexpectedValue};
     }
 
     .table td.changed:last-child {
-      background: var(--vscode-gitDecoration-addedResourceForeground);
+      background: ${theme.changedValue};
     }
 
     .table td.changed[data-is-constant="true"] {
-      background: var(--vscode-gitDecoration-untrackedResourceForeground);
+      background: ${theme.conflictValue};
     }
 
     .table td:last-child:focus-within {
-      background: var(--vscode-gitDecoration-renamedResourceForeground);
+      background: ${theme.focusedValue};
     }
     
     .input {
@@ -760,8 +770,8 @@ function getStyles() {
       border: none;
       border-radius: 3px;
       padding: 4px 5px;
-      background-color: var(--vscode-input-background);
-      color: var(--vscode-input-foreground);
+      background-color: ${theme.inputBackground};
+      color: ${theme.inputForground};
     }
 
     select.input {
@@ -784,10 +794,10 @@ function getStyles() {
       top: 50%;
       transform: translateY(-50%);
       border-radius: 3px;
-      background-color: var(--vscode-checkbox-foreground);
+      background-color: ${theme.inputBooleanCheckOff};
     }
     .check.checked {
-      background-color: var(--vscode-editorOverviewRuler-infoForeground);
+      background-color: ${theme.inputBooleanCheckOn};
     }
 
     .input.search {
@@ -800,7 +810,7 @@ function getStyles() {
     
     .table tr:focus-within,
     .table tr:focus-within input {
-      color: var(--vscode-menu-selectionForeground);
+      color: ${theme.inputFocusedForeground};
     }
 
     footer {
