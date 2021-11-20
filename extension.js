@@ -790,6 +790,7 @@ function getStyles() {
     }
     .check {
       position: absolute;
+      pointer-events: none;
       width: 11px;
       height: 50%;
       right: 6px;
