@@ -69,10 +69,16 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "env-viewer.openPreviewToTheSide",
+          "when": "editorLangId == env"
+        }
+      ],
       "editor/title": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == env || editorLangId == ini",
+          "when": "editorLangId == env",
           "group": "navigation"
         }
       ]
