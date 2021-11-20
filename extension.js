@@ -209,6 +209,27 @@ const inputOptions = {
   CONSTANT: 'constant',
 }
 
+const defaultTheme = {
+  fontFamily: 'var(--vscode-editor-font-family)',
+  fontSize: 'var(--vscode-editor-font-size)',
+  inputBackground: 'var(--vscode-input-background)',
+  inputBooleanCheckOff: 'var(--vscode-checkbox-foreground)',
+  inputBooleanCheckOn: 'var(--vscode-editorOverviewRuler-infoForeground)',
+  inputDisabledBackground: 'var(--vscode-inputOption-activeBackground)',
+  inputFocusedForeground: 'var(--vscode-menu-selectionForeground)',
+  inputForground: 'var(--vscode-input-foreground)',
+  valueChanged: 'var(--vscode-gitDecoration-addedResourceForeground)',
+  valueConflicted: 'var(--vscode-gitDecoration-untrackedResourceForeground)',
+  valueFocused: 'var(--vscode-gitDecoration-renamedResourceForeground)',
+  valueUnchanged: 'var(--vscode-gitDecoration-ignoredResourceForeground)',
+  valueUnexpected: 'var(--vscode-gitDecoration-modifiedResourceForeground)',
+}
+
+const config = vscode.workspace.getConfiguration('env-viewer')
+
+const userTheme = config.get('theme')
+const theme = { ...defaultTheme, ...userTheme }
+
 function handleDidReceiveMessage(message) {
   switch (message.command) {
     case eventKeys.CHANGED_VALUE:
@@ -692,8 +713,8 @@ function getStyles() {
     body,
     input,
     select {
-      font-family: var(--vscode-editor-font-family);
-      font-size: var(--vscode-editor-font-size);
+      font-family: ${theme.fontFamily};
+      font-size: ${theme.fontSize};
     }
 
     .title {
@@ -710,7 +731,7 @@ function getStyles() {
     }
 
     .input[disabled] {
-      background-color: var(--vscode-inputOption-activeBackground);
+      background-color: ${theme.inputDisabledBackground};
       opacity: 1;
     }
 
@@ -725,25 +746,25 @@ function getStyles() {
 
     .table td:last-child {
       padding-left: 10px;
-      background: var(--vscode-gitDecoration-ignoredResourceForeground);
+      background: ${theme.valueUnchanged};
       border-radius: 3px;
       display: flex;
     }
     
     .table td.custom:last-child {
-      background: var(--vscode-gitDecoration-modifiedResourceForeground);
+      background: ${theme.valueUnexpected};
     }
 
     .table td.changed:last-child {
-      background: var(--vscode-gitDecoration-addedResourceForeground);
+      background: ${theme.valueChanged};
     }
 
     .table td.changed[data-is-constant="true"] {
-      background: var(--vscode-gitDecoration-untrackedResourceForeground);
+      background: ${theme.valueConflicted};
     }
 
     .table td:last-child:focus-within {
-      background: var(--vscode-gitDecoration-renamedResourceForeground);
+      background: ${theme.valueFocused};
     }
     
     .input {
@@ -751,8 +772,8 @@ function getStyles() {
       border: none;
       border-radius: 3px;
       padding: 4px 5px;
-      background-color: var(--vscode-input-background);
-      color: var(--vscode-input-foreground);
+      background-color: ${theme.inputBackground};
+      color: ${theme.inputForground};
     }
 
     select.input {
@@ -769,16 +790,17 @@ function getStyles() {
     }
     .check {
       position: absolute;
+      pointer-events: none;
       width: 11px;
       height: 50%;
       right: 6px;
       top: 50%;
       transform: translateY(-50%);
       border-radius: 3px;
-      background-color: var(--vscode-checkbox-foreground);
+      background-color: ${theme.inputBooleanCheckOff};
     }
     .check.checked {
-      background-color: var(--vscode-editorOverviewRuler-infoForeground);
+      background-color: ${theme.inputBooleanCheckOn};
     }
 
     .input.search {
@@ -791,7 +813,7 @@ function getStyles() {
     
     .table tr:focus-within,
     .table tr:focus-within input {
-      color: var(--vscode-menu-selectionForeground);
+      color: ${theme.inputFocusedForeground};
     }
 
     footer {
