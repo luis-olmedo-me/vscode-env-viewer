@@ -255,7 +255,6 @@ function activate(context) {
       const isDifferentFile = environment.file !== activeTextEditor
 
       environment.setFile(activeTextEditor)
-      console.log({ theme })
 
       if (!environment.panel) {
         const panel = vscode.window.createWebviewPanel(
