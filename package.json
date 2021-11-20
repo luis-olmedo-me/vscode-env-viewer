@@ -82,7 +82,18 @@
         "language": "env",
         "path": "./snippets.json"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Env-Viewer",
+      "properties": {
+        "env-viewer.theme": {
+          "description": "Overrided theme colors.",
+          "default": {},
+          "type": "object"
+        }
+      }
+    }
   },
   "scripts": {
     "lint": "eslint .",

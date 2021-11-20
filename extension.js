@@ -209,6 +209,14 @@ const inputOptions = {
   CONSTANT: 'constant',
 }
 
+const defaultTheme = {
+  unchangedValue: 'var(--vscode-gitDecoration-ignoredResourceForeground)',
+}
+const config = vscode.workspace.getConfiguration('env-viewer')
+
+const userTheme = config.get('theme')
+const theme = { ...defaultTheme, ...userTheme }
+
 function handleDidReceiveMessage(message) {
   switch (message.command) {
     case eventKeys.CHANGED_VALUE:
@@ -234,6 +242,7 @@ function activate(context) {
       const isDifferentFile = environment.file !== activeTextEditor
 
       environment.setFile(activeTextEditor)
+      console.log({ theme })
 
       if (!environment.panel) {
         const panel = vscode.window.createWebviewPanel(
