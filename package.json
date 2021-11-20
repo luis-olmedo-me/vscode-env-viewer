@@ -69,10 +69,16 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "env-viewer.openPreviewToTheSide",
+          "when": "editorLangId == env"
+        }
+      ],
       "editor/title": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == env || editorLangId == ini",
+          "when": "editorLangId == env",
           "group": "navigation"
         }
       ]
@@ -82,7 +88,18 @@
         "language": "env",
         "path": "./snippets.json"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Env-Viewer",
+      "properties": {
+        "env-viewer.theme": {
+          "description": "Overrided theme colors.",
+          "default": {},
+          "type": "object"
+        }
+      }
+    }
   },
   "scripts": {
     "lint": "eslint .",
