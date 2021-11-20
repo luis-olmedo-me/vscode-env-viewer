@@ -210,18 +210,21 @@ const inputOptions = {
 }
 
 const defaultTheme = {
-  unchangedValue: 'var(--vscode-gitDecoration-ignoredResourceForeground)',
-  unexpectedValue: 'var(--vscode-gitDecoration-modifiedResourceForeground)',
-  changedValue: 'var(--vscode-gitDecoration-addedResourceForeground)',
-  conflictValue: 'var(--vscode-gitDecoration-untrackedResourceForeground)',
-  focusedValue: 'var(--vscode-gitDecoration-renamedResourceForeground)',
+  fontFamily: 'var(--vscode-editor-font-family)',
+  fontSize: 'var(--vscode-editor-font-size)',
   inputBackground: 'var(--vscode-input-background)',
-  inputForground: 'var(--vscode-input-foreground)',
-  inputDisabledBackground: 'var(--vscode-inputOption-activeBackground)',
-  inputBooleanCheckOn: 'var(--vscode-editorOverviewRuler-infoForeground)',
   inputBooleanCheckOff: 'var(--vscode-checkbox-foreground)',
+  inputBooleanCheckOn: 'var(--vscode-editorOverviewRuler-infoForeground)',
+  inputDisabledBackground: 'var(--vscode-inputOption-activeBackground)',
   inputFocusedForeground: 'var(--vscode-menu-selectionForeground)',
+  inputForground: 'var(--vscode-input-foreground)',
+  valueChanged: 'var(--vscode-gitDecoration-addedResourceForeground)',
+  valueConflicted: 'var(--vscode-gitDecoration-untrackedResourceForeground)',
+  valueFocused: 'var(--vscode-gitDecoration-renamedResourceForeground)',
+  valueUnchanged: 'var(--vscode-gitDecoration-ignoredResourceForeground)',
+  valueUnexpected: 'var(--vscode-gitDecoration-modifiedResourceForeground)',
 }
+
 const config = vscode.workspace.getConfiguration('env-viewer')
 
 const userTheme = config.get('theme')
@@ -744,25 +747,25 @@ function getStyles() {
 
     .table td:last-child {
       padding-left: 10px;
-      background: ${theme.unchangedValue};
+      background: ${theme.valueUnchanged};
       border-radius: 3px;
       display: flex;
     }
     
     .table td.custom:last-child {
-      background: ${theme.unexpectedValue};
+      background: ${theme.valueUnexpected};
     }
 
     .table td.changed:last-child {
-      background: ${theme.changedValue};
+      background: ${theme.valueChanged};
     }
 
     .table td.changed[data-is-constant="true"] {
-      background: ${theme.conflictValue};
+      background: ${theme.valueConflicted};
     }
 
     .table td:last-child:focus-within {
-      background: ${theme.focusedValue};
+      background: ${theme.valueFocused};
     }
     
     .input {
