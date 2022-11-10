@@ -5,7 +5,7 @@
   "description": "Interactive view for environment variables files",
   "repository": "https://github.com/olmedoluis/vscode-env-viewer",
   "icon": "media/logo/seahorse.png",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.59.0"
   },
@@ -72,13 +72,13 @@
       "commandPalette": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == env"
+          "when": "editorLangId == env || resourceFilename == .env"
         }
       ],
       "editor/title": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == env",
+          "when": "editorLangId == env || resourceFilename == .env",
           "group": "navigation"
         }
       ]
