@@ -72,13 +72,13 @@
       "commandPalette": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == env"
+          "when": "editorLangId == env || resourceFilename == .env"
         }
       ],
       "editor/title": [
         {
           "command": "env-viewer.openPreviewToTheSide",
-          "when": "editorLangId == env",
+          "when": "editorLangId == env || resourceFilename == .env",
           "group": "navigation"
         }
       ]
