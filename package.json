@@ -5,7 +5,7 @@
   "description": "Interactive view for environment variables files",
   "repository": "https://github.com/olmedoluis/vscode-env-viewer",
   "icon": "media/logo/seahorse.png",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.59.0"
   },
